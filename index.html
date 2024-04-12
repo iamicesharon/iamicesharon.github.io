@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sharon的个人网站</title>
+    <style>
+        /* 定义第一个字体样式 */
+        @font-face {
+            font-family: "ZCOOLKuaile";
+            src: url("站酷仓耳渔阳体 W05.ttf") format("truetype");
+        }
+
+        /* 定义第二个字体样式 */
+        @font-face {
+            font-family: "YSHAOSHENTI";
+            src: url("YSHAOSHENTI-2.TTF") format("truetype");
+        }
+
+        :root {
+            --primary-color: #6a11cb; /* Default theme colors */
+            --secondary-color: #2575fc;
+            --background-color: rgba(255, 255, 255, 0.2);
+            --text-color: #ddd;
+            --sidebar-bg-color: rgba(255, 255, 255, 0.1);
+            --box-background-color: rgba(255, 255, 255, 0.3);
+            --box-shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .blue-purple {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+        }
+
+        .light-pink-yellow {
+            --primary-color: #ffafbd;
+            --secondary-color: #ffc3a0;
+            --text-color: #333;
+        }
+
+        .yellow-orange {
+            --primary-color: #fecd1a;
+            --secondary-color: #ff8a00;
+            --text-color: #333;
+        }
+
+        .red-garnet {
+            --primary-color: #d31027;
+            --secondary-color: #ea384d;
+        }
+
+        .light-blue-dark-blue {
+            --primary-color: #addff7;
+            --secondary-color: #007cb9;
+            --text-color: #333;
+        }
+
+        .white-gray-black {
+            --primary-color: #aaaaaa;
+            --secondary-color: #aaaaaa;
+            --text-color: #ffffff;
+            --sidebar-bg-color: #333333;
+            --box-background-color: #7d7d7d;
+            --background-color: #eeeeee;
+        }
+
+        body {
+            font-family: "YSHAOSHENTI", sans-serif;
+            background-image: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+        }
+
+        .sidebar {
+            min-width: 250px;
+            background-color: var(--sidebar-bg-color);
+            height: 100vh;
+            padding: 20px;
+            box-shadow: 0 2px 5px var(--box-shadow-color);
+            position: fixed;
+        }
+
+        .sidebar a, .theme-button {
+            text-decoration: none;
+            color: var(--text-color);
+            display: block;
+            padding: 10px;
+            border-radius: 15px;
+            transition: background 0.3s, color 0.3s;
+            margin: 5px 0;
+        }
+
+        .sidebar a:hover, .theme-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .container {
+            margin-left: 250px;
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .box {
+            background-color: var(--box-background-color);
+            border-radius: 5px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px var(--box-shadow-color);
+            margin-left: 50px;
+        }
+
+        .theme-button {
+            font-family: "YSHAOSHENTI", sans-serif;
+            position: absolute;
+            bottom: 50px;
+            left: 10px; /* Aligns with the sidebar padding */
+            width: calc(100% - 60px); /* Adjusts width to fit within the sidebar */
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .sidebar select.theme-button {
+            font-family: "YSHAOSHENTI", sans-serif;
+            background-color: var(--sidebar-bg-color); /* Use the sidebar's background color */
+            color: var(--text-color); /* Use the text color defined in your theme */
+            border: none; /* Remove default border */
+            -webkit-appearance: none; /* Remove default styling for WebKit browsers */
+            -moz-appearance: none; /* Remove default styling for Mozilla browsers */
+            appearance: none; /* Standard way to remove default styling */
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 15px; /* Rounded corners */
+            width: calc(100% - 20px); /* Adjust width to fit inside the sidebar */
+            cursor: pointer; /* Change cursor to pointer to indicate it's clickable */
+        }
+
+        .sidebar select.theme-button:hover {
+            background-color: rgba(255, 255, 255, 0.2); /* Style for hover state */
+        }
+
+        /* Optionally, style the dropdown arrow */
+        .sidebar .theme-button::-ms-expand {
+            display: none; /* Hide the default arrow in IE/Edge */
+        }
+        .sidebar select.theme-button, .sidebar select.theme-button option {
+            color: #000; /* Black text for all themes */
+            background-color: #fff; /* White background for dropdown and options */
+        }
+
+        h2{
+            font-family: "ZCOOLKuaile", sans-serif;
+            font-size: 40px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+            transform: scale(1.05);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        input[type="number"] {
+            background-color: #f3f3f3; /* Light background for better readability */
+            border: 2px solid var(--primary-color); /* Border color matching the primary color theme */
+            padding: 8px 10px; /* Padding for better text spacing */
+            border-radius: 5px; /* Rounded corners for a modern look */
+            font-size: 16px; /* Slightly larger font size for better readability */
+            color: var(black); /* Text color from the root variables */
+            margin-bottom: 15px; /* Margin for spacing below the input box */
+            width: calc(100% - 24px); /* Adjust width considering padding and border */
+            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--secondary-color); /* Highlight with secondary color on focus */
+            outline: none; /* Remove default focus outline */
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2); /* Soft shadow for focus indication */
+        }
+
+        #mattingInput {
+            display: block;
+            width: calc(100% - 20px); /* Adjust width to account for padding */
+            margin: 0 auto 10px auto; /* Center align and add margin below */
+            padding: 10px;
+            border-radius: 5px;
+            border: 2px solid var(--primary-color);
+        }
+
+        button#mattingButton {
+            display: block;
+            width: fit-content;
+            margin: 0 auto; /* Center align button */
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>目录</h2>
+        <a href="javascript:void(0);" onclick="switchTab('home')">主页</a>
+        <a href="javascript:void(0);" onclick="switchTab('about')">关于我</a>
+        <a href="javascript:void(0);" onclick="switchTab('projects')">奇奇怪怪的工具</a>
+        <a href="javascript:void(0);" onclick="switchTab('contact')">联系方式</a>
+        <select id="theme-selector" class="theme-button" onchange="changeTheme(this.value)">
+            <option value="blue-purple">蓝色 紫色</option>
+            <option value="light-pink-yellow">浅粉色 黄色</option>
+            <option value="yellow-orange">黄色 橙色</option>
+            <option value="red-garnet">红色 石榴红</option>
+            <option value="light-blue-dark-blue">浅蓝色 深蓝色</option>
+            <option value="white-gray-black">白色 灰色 黑色</option>
+        </select>
+    </div>    
+
+    <div class="container">
+        <div id="home" style="display: block;"> <!-- Parent container for Home tab -->
+            <div class="box">一个平平无奇的小站~</div>
+            <div class="box">👈这里有很多选项卡，你可以看看！</div>
+        </div>
+        <div id="about" style="display:none;">
+            <div class="box">
+                <h2>我是谁？</h2>
+                <p>一名学生，叫Sharon，也有可能以iceSharon的名字出现</p>
+            </div>
+        </div>
+        <div id="projects" style="display:none;">
+            <div class="box">
+                <h2>随机生成算式</h2>
+                <p>点击生成后，会需要一段加载时间。一个数字仅能生成一张图片</p>
+                <input type="number" id="numberInput" placeholder="输入算式得数" style="margin-bottom: 10px;">
+                <button onclick="fetchExpressionImage()">生成算式</button>
+                <!-- Image container will be here -->
+            </div>
+            <div class="box">
+                <h2>每日一言</h2>
+                <p>点击后需要加载时间，实在不行就刷新吧。反复点击没有效果，点击一次就会生成一句，慢还是会慢</p>
+                <button onclick="fetchDailySentence()">获取每日一言</button>
+            </div>
+            <div class="box">
+                <h2>AI抠图</h2>
+                <p>选择图片进行AI抠图处理</p>
+                <input type="file" id="mattingInput" accept="image/png, image/jpeg">
+                <button id="mattingButton" onclick="fetchMattingImage()">上传并处理图片</button>
+                <!-- Placeholder for the processed image -->
+                <div id="mattingResult"></div>
+            </div>
+            <div class="box">
+                <h2>字典查询工具</h2>
+                <p>输入你想查询的汉字，获取其详细解释。</p>
+                <input type="text" id="dictInput" placeholder="输入汉字">
+                <button onclick="fetchDictResult()">查询</button>
+                <div id="dictResult"></div>
+            </div>
+            <div class="box">
+                <h2>图片文字识别</h2>
+                <p>上传图片进行文字识别</p>
+                <input type="file" id="ocrInput" accept="image/*">
+                <button onclick="fetchOcrResult()">识别文字</button>
+                <div id="ocrResult"></div>
+            </div>
+            <div class="box">
+                <h2>天气查询</h2>
+                <p>输入城市查看当前天气或一周天气预报。</p>
+                <p>城市:带有后缀，例如"上海市"，但是不能是区/县，可用城市举例:济南市、北京市</p>
+                <input type="text" id="cityInput" placeholder="输入城市名称" />
+                <select id="typeSelect">
+                    <option value="now">当前天气</option>
+                    <option value="week">一周天气</option>
+                </select>
+                <button onclick="fetchWeather()">查询天气</button>
+                <div id="weatherResult"></div>
+            </div>
+            <div class="box">
+                <h2>每日一句英语</h2>
+                <button onclick="fetchOneDayEnglish()">获取每日一句</button>
+                <div id="oneDayEnglishResult"></div>
+            </div>
+            <div class="box">
+                <h2>神回复</h2>
+                <button onclick="fetchGodReply()">获取神回复</button>
+                <div id="godReplyResult"></div>
+            </div>
+            <div class="box">
+                <h2>翻译工具</h2>
+                <select id="translateDirection">
+                    <option value="zh2en">中文到英文</option>
+                    <option value="en2zh">英文到中文</option>
+                </select>
+                <input type="text" id="translateInput" placeholder="输入文本进行翻译">
+                <button onclick="fetchTranslation()">翻译</button>
+                <div id="translateResult"></div>
+            </div>
+            <div class="box">
+                <h2>历史上的今天</h2>
+                <button onclick="fetchTodayInHistory()">查看今日历史</button>
+                <div id="historyResult"></div>
+            </div>
+            <div class="box">
+                <h2>日历</h2>
+                <select id="calendarType">
+                    <option value="moyu">摸鱼日历</option>
+                    <option value="zhichang">职场人日历</option>
+                </select>
+                <button onclick="fetchCalendar()">查看日历</button>
+                <div id="calendarResult"></div>
+            </div>
+
+        </div>        
+        <div id="contact" style="display:none;">
+            <div class="box">Email:</div>
+        </div>
+    </div>    
+
+    <script>
+        function switchTab(tabId) {
+            // Hide all tab content
+            var tabContents = document.querySelectorAll('.container > div');
+            tabContents.forEach(function(content) {
+                content.style.display = 'none';
+            });
+
+            // Show the selected tab content
+            document.getElementById(tabId).style.display = 'block';
+        }
+
+        function changeTheme(themeName) {
+            if (["blue-purple", "light-pink-yellow", "yellow-orange", "red-garnet", "light-blue-dark-blue", "white-gray-black"].includes(themeName)) {
+                document.body.className = themeName;
+            } else {
+                alert("呃...似乎没有这种风格");
+            }
+        }
+
+        function fetchDailySentence() {
+            fetch('https://api.vvhan.com/api/ian/rand?type=json')
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.querySelector('#projects .box:nth-child(2)'); // Adjust the selector as needed
+                    container.innerHTML += `<p>${data.data.content} -- ${data.data.form}</p>`;
+                })
+                .catch(error => console.error('Error fetching daily sentence:', error));
+        }
+
+        // Add the fetchExpressionImage function here
+        function fetchExpressionImage() {
+            const number = document.getElementById('numberInput').value || 888; // Use default value if input is empty
+            const apiUrl = `https://www.zengyulin.cn/fun-img/img/expr?number=${number}`;
+            const imageContainer = document.querySelector('#projects .box'); // Ensure this selector matches your image container
+
+            const img = document.createElement('img');
+            img.src = apiUrl;
+            img.alt = '随机生成的算式';
+            img.style.width = '100%';
+
+            const existingImg = imageContainer.querySelector('img');
+            if (existingImg) {
+                imageContainer.removeChild(existingImg);
+            }
+
+            imageContainer.appendChild(img);
+        }
+
+        // Call fetchExpressionImage when the "projects" tab is clicked
+        document.getElementById('projects').addEventListener('click', fetchExpressionImage);
+
+        function fetchMattingImage() {
+            const input = document.getElementById('mattingInput');
+            if (input.files.length > 0) {
+                const file = input.files[0];
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                fetch('https://api.oioweb.cn/api/ai/matting', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.code === 200) {
+                        const resultDiv = document.getElementById('mattingResult');
+                        resultDiv.innerHTML = `<img src="${data.result}" alt="AI抠图结果" style="width: 100%;">`;
+                    } else {
+                        alert("处理失败: " + data.msg);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error uploading and processing image:', error);
+                    alert("上传或处理图片时发生错误");
+                });
+            } else {
+                alert("请选择一个图片文件进行上传");
+            }
+        }
+
+        function fetchDictResult() {
+            const text = document.getElementById('dictInput').value;
+            if (text.trim() !== '') {
+                fetch(`https://api.oioweb.cn/api/txt/dict?text=${encodeURIComponent(text)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if(data.code === 200 && data.result) {
+                            const resultDiv = document.getElementById('dictResult');
+                            resultDiv.innerHTML = `<p>拼音: ${data.result.pinyin}</p>
+                                                <p>笔画: ${data.result.bihua}</p>
+                                                <p>部首: ${data.result.bushou}</p>
+                                                <p>详细解释: ${data.result.detail_explain.join('<br>')}</p>`;
+                        } else {
+                            alert("查询失败，请重试");
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching dictionary result:', error);
+                        alert("查询时出错，请检查网络连接");
+                    });
+            } else {
+                alert("请输入有效的汉字");
+            }
+        }
+
+        function fetchOcrResult() {
+            const input = document.getElementById('ocrInput');
+            if (input.files.length > 0) {
+                const file = input.files[0];
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                fetch('https://api.oioweb.cn/api/ocr', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.code === 200) {
+                        const resultDiv = document.getElementById('ocrResult');
+                        resultDiv.innerHTML = `<p>识别结果: ${data.result}</p>`;
+                    } else {
+                        alert("识别失败: " + data.msg);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error performing OCR:', error);
+                    alert("识别时出错，请检查网络连接");
+                });
+            } else {
+                alert("请选择一个图片文件进行上传");
+            }
+        }
+
+        function fetchWeather() {
+            const city = document.getElementById('cityInput').value; // Get city from input field
+            const type = document.getElementById('typeSelect').value;
+            fetch(`https://api.vvhan.com/api/weather?city=${encodeURIComponent(city)}&type=${type}`)
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success) {
+                        let resultHtml = `<p>城市: ${data.city}</p>`;
+                        if (type === 'now') {
+                            // Handle current weather display
+                            resultHtml += `
+                                <p>日期: ${data.data.date}, ${data.data.week}</p>
+                                <p>天气: ${data.data.type}</p>
+                                <p>温度: ${data.data.low} - ${data.data.high}</p>
+                                <p>风向: ${data.data.fengxiang}</p>
+                                <p>风力: ${data.data.fengli}</p>
+                                <p>夜间天气: ${data.data.night.type}, 风向: ${data.data.night.fengxiang}, 风力: ${data.data.night.fengli}</p>
+                                <p>AQI: ${data.air.aqi} (${data.air.aqi_name}), CO: ${data.air.co}, NO2: ${data.air.no2}, O3: ${data.air.o3}, PM10: ${data.air.pm10}, PM2.5: ${data.air.pm2_5}, SO2: ${data.air.so2}</p>
+                                <p>${data.tip}</p>`;
+                        } else {
+                            data.data.forEach((day, index, array) => {
+                                resultHtml += `
+                                    <div>
+                                        <p>日期: ${day.date}, ${day.week}</p>
+                                        <p>天气: ${day.type}, 温度: ${day.low} - ${day.high}</p>
+                                        <p>风向: ${day.fengxiang}, 风力: ${day.fengli}</p>
+                                        <p>夜间天气: ${day.night.type}, 风向: ${day.night.fengxiang}, 风力: ${day.night.fengli}</p>
+                                    </div>`;
+                                if (index < array.length - 1) resultHtml += `<hr>`; // Add a horizontal line after each day except the last
+                            });
+                        }
+                        document.getElementById('weatherResult').innerHTML = resultHtml;
+                    } else {
+                        alert("查询失败，请重试");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching weather:', error);
+                    alert("查询时出错，请检查网络连接");
+                });
+        }
+        function fetchOneDayEnglish() {
+            fetch('https://api.oioweb.cn/api/common/OneDayEnglish')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        const result = data.result;
+                        const resultHtml = `
+                            <p>${result.content}</p>
+                            <p>${result.note}</p>
+                            <audio controls src="${result.tts}">Your browser does not support the audio element.</audio>
+                            <img src="${result.img}" alt="Daily English" style="max-width:100%;">
+                        `;
+                        document.getElementById('oneDayEnglishResult').innerHTML = resultHtml;
+                    } else {
+                        alert("Failed to fetch daily English sentence.");
+                    }
+                })
+                .catch(error => console.error('Error fetching daily English sentence:', error));
+        }
+        function fetchGodReply() {
+            fetch('https://v.api.aa1.cn/api/api-wenan-shenhuifu/index.php?aa1=json')
+                .then(response => response.json())
+                .then(data => {
+                    const result = data[0].shenhuifu; // Adjust based on actual API response
+                    const resultDiv = document.getElementById('godReplyResult');
+                    resultDiv.innerHTML = `<p>${result}</p>`;
+                })
+                .catch(error => {
+                    console.error('Error fetching God Reply:', error);
+                });
+        }
+        function fetchTranslation() {
+            const text = document.getElementById('translateInput').value;
+            const direction = document.getElementById('translateDirection').value;
+            const apiUrl = `https://api.oioweb.cn/api/txt/QQFanyi?sourceText=${encodeURIComponent(text)}&type=${direction}`;
+
+            if (text.trim() !== '') {
+                fetch(apiUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.code === 200 && data.result) {
+                            const resultDiv = document.getElementById('translateResult');
+                            resultDiv.innerHTML = `<p>原文: ${data.result.sourceText}</p><p>翻译: ${data.result.targetText}</p>`;
+                        } else {
+                            alert("翻译失败，请重试");
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching translation:', error);
+                        alert("翻译时出错，请检查网络连接");
+                    });
+            } else {
+                alert("请输入要翻译的文本");
+            }
+        }
+        function fetchTodayInHistory() {
+            fetch('https://api.oioweb.cn/api/common/history')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        let historyHtml = '';
+                        data.result.forEach(event => {
+                            historyHtml += `<div><p>${event.year}: ${event.title}</p><p>${event.desc}</p><a href="${event.link}" target="_blank">详细信息</a></div>`;
+                        });
+                        document.getElementById('historyResult').innerHTML = historyHtml;
+                    } else {
+                        alert("无法获取历史数据，请稍后再试");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching history:', error);
+                    alert("获取数据时出错，请检查网络连接");
+                });
+        }
+        function fetchCalendar() {
+            const type = document.getElementById('calendarType').value;
+            let apiUrl;
+            if (type === 'moyu') {
+                apiUrl = 'https://api.vvhan.com/api/moyu?type=json';
+            } else {
+                apiUrl = 'https://api.vvhan.com/api/zhichang?type=json';
+            }
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const resultDiv = document.getElementById('calendarResult');
+                    if (data.success) {
+                        resultDiv.innerHTML = `<p>${data.title} - ${data.time}</p><img src="${data.url}" alt="${data.title}" style="max-width:100%;">`;
+                    } else {
+                        resultDiv.innerHTML = `<p>Failed to load calendar data.</p>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching calendar:', error);
+                    alert("获取日历时出错，请检查网络连接");
+                });
+        }
+    </script>
+</body>
+</html>
