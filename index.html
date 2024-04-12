@@ -207,6 +207,54 @@
             width: fit-content;
             margin: 0 auto; /* Center align button */
         }
+
+        /* Initial state of the tab content */
+        .container > div {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        /* State of the tab content when it is active */
+        .container > div.active {
+            display: block;
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%; /* Full width */
+                height: auto; /* Adjust height automatically */
+                position: relative; /* Changed from fixed to relative */
+                padding: 5px; /* Reduced padding */
+                overflow-x: hidden; /* Prevents horizontal overflow */
+                overflow-y: auto; /* Allows vertical scrolling if content is too long */
+                box-shadow: none; /* Removes shadow */
+            }
+
+            .theme-button {
+                position: static; /* Makes button flow within the document */
+                width: auto; /* Auto width based on content */
+                margin-top: 10px; /* Adds space above the theme selector */
+            }
+
+            .container {
+                margin-top: 10px; /* Adds space below the sidebar */
+                margin-left: 0; /* Aligns container with the viewport */
+                padding: 5px; /* Reduces padding */
+            }
+
+            .box {
+                margin-left: 0; /* Ensures boxes align with the edges */
+            }
+        }
+
+        /* Additional styling for smaller devices */
+        @media (max-width: 480px) {
+            h2, button, input[type="text"], select {
+                font-size: 14px; /* Reduces font size for readability on small devices */
+            }
+        }
     </style>
 </head>
 <body>
@@ -598,6 +646,25 @@
                     console.error('Error fetching calendar:', error);
                     alert("获取日历时出错，请检查网络连接");
                 });
+        }
+        function switchTab(tabId) {
+            // Hide all tab content and remove 'active' class
+            var tabContents = document.querySelectorAll('.container > div');
+            tabContents.forEach(function(content) {
+                content.style.display = 'none';
+                content.classList.remove('active');
+            });
+
+            // Delay display block to allow CSS transition
+            setTimeout(function() {
+                // Show the selected tab content
+                var activeTab = document.getElementById(tabId);
+                activeTab.style.display = 'block';
+                // Timeout to apply opacity transition after display change
+                setTimeout(function() {
+                    activeTab.classList.add('active');
+                }, 10);
+            }, 10);
         }
     </script>
 </body>
