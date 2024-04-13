@@ -220,7 +220,7 @@
             display: block;
             opacity: 1;
         }
-
+        
         @media (max-width: 768px) {
             .sidebar {
                 width: 100%; /* Full width */
@@ -278,6 +278,7 @@
         <div id="home" style="display: block;"> <!-- Parent container for Home tab -->
             <div class="box">一个平平无奇的小站~</div>
             <div class="box">👈这里有很多选项卡，你可以看看！</div>
+
         </div>
         <div id="about" style="display:none;">
             <div class="box">
@@ -366,14 +367,55 @@
                 <button onclick="fetchCalendar()">查看日历</button>
                 <div id="calendarResult"></div>
             </div>
+            <div class="box">
+                <h2>图像识别</h2>
+                <input type="file" id="imageInput" accept="image/*">
+                <button onclick="fetchImageRecognition()">识别图像</button>
+                <div id="imageRecognitionResult"></div>
+            </div>
+            <div class="box">
+                <h2>百度题库查询</h2>
+                <input type="text" id="questionInput" placeholder="输入问题关键词">
+                <button onclick="fetchQuestionAnswer()">查询答案</button>
+                <div id="questionResult"></div>
+            </div>            
+            <div class="box">
+                <h2>快递物流查询</h2>
+                <p>请输入你的快递单号:</p>
+                <input type="text" id="trackingInput" placeholder="快递单号">
+                <button onclick="fetchTrackingInfo()">查询物流</button>
+                <div id="trackingResult"></div>
+            </div>         
 
         </div>        
         <div id="contact" style="display:none;">
-            <div class="box">Email:</div>
+            <div class="box">Email:
+                <a href="mailto:iamicesharon@163.com">iamicesharon@163.com</a>
+            </div>
         </div>
     </div>    
-
+    <script src="https://api.vvhan.com/api/script/bolang"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchTimeGreeting(); // Fetch and display the greeting message as soon as the page loads
+        });
+
+        function fetchTimeGreeting() {
+            fetch('https://api.songzixian.com/api/greeting?dataSource=LOCAL_TIME_GREETING')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200 && data.data && data.data.greeting) {
+                        const greetingContainer = document.getElementById('greetingMessage');
+                        greetingContainer.innerHTML = `<h2>${data.data.greeting}</h2><p>${data.data.warmWords}</p>`;
+                    } else {
+                        console.error('Failed to fetch greeting:', data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching time-based greeting:', error);
+                });
+        }
+
         function switchTab(tabId) {
             // Hide all tab content
             var tabContents = document.querySelectorAll('.container > div');
@@ -665,6 +707,90 @@
                     activeTab.classList.add('active');
                 }, 10);
             }, 10);
+        }
+        function fetchImageRecognition() {
+            const input = document.getElementById('imageInput');
+            if (input.files.length > 0) {
+                const file = input.files[0];
+                const formData = new FormData();
+                formData.append('file', file);
+
+                fetch('https://api.oioweb.cn/api/ocr/recognition', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200 && data.result.length > 0) {
+                        let resultsHtml = '<ul>';
+                        data.result.forEach(item => {
+                            resultsHtml += `<li>${item.name} (Confidence: ${(item.score * 100).toFixed(2)}%, Category: ${item.root})</li>`;
+                        });
+                        resultsHtml += '</ul>';
+                        document.getElementById('imageRecognitionResult').innerHTML = resultsHtml;
+                    } else {
+                        document.getElementById('imageRecognitionResult').innerHTML = "No recognizable objects found or API error.";
+                    }
+                })
+                .catch(error => {
+                    console.error('Error performing image recognition:', error);
+                    alert("识别时出错，请检查网络连接");
+                });
+            } else {
+                alert("请选择一个图片文件进行上传");
+            }
+        }
+        function fetchQuestionAnswer() {
+            const query = document.getElementById('questionInput').value;
+            if (query.trim() !== '') {
+                fetch(`https://api.pearktrue.cn/api/baidutiku/?question=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.code === 200 && data.data) {
+                            let contentHtml = `<p><strong>问题:</strong> ${data.data.question}</p>`;
+                            contentHtml += `<ul>`;
+                            data.data.options.forEach((option, index) => {
+                                contentHtml += `<li>${String.fromCharCode(65 + index)}. ${option}</li>`;
+                            });
+                            contentHtml += `</ul>`;
+                            contentHtml += `<p><strong>答案:</strong> ${data.data.answer}</p>`;
+                            document.getElementById('questionResult').innerHTML = contentHtml;
+                        } else {
+                            document.getElementById('questionResult').innerHTML = '未找到相关答案，请尝试其他关键词。';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error retrieving data:', error);
+                        alert("获取数据时出错，请检查网络连接");
+                    });
+            } else {
+                alert("请输入问题的关键词");
+            }
+        }
+        function fetchTrackingInfo() {
+            const trackingNumber = document.getElementById('trackingInput').value;
+            const apiUrl = `https://api.songzixian.com/api/express-tracking?dataSource=nationwide_express&trackingNumber=${trackingNumber}`; // Use the actual API URL
+
+            fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.code === 200 && data.data) {
+                    const details = data.data.trackingDetails.map(detail =>
+                        `${detail.time} - ${detail.description}`).join('<br>');
+                    document.getElementById('trackingResult').innerHTML = `
+                        <strong>快递公司:</strong> ${data.data.courierName} (${data.data.courierCode})<br>
+                        <strong>状态:</strong> ${data.data.deliveryStatus}<br>
+                        <strong>上次更新:</strong> ${data.data.latestUpdateTime}<br>
+                        <strong>细节:</strong><br>${details}
+                    `;
+                } else {
+                    document.getElementById('trackingResult').innerHTML = 'Tracking information not available. Please check the tracking number and try again.';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching tracking info:', error);
+                document.getElementById('trackingResult').innerHTML = 'An error occurred while fetching tracking information.';
+            });
         }
     </script>
 </body>
