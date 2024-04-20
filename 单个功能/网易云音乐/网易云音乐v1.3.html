@@ -1,0 +1,210 @@
+<!--版权原因，1.3版本以1.1版本为基础-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>音乐播放器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .container {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            border-radius: 10px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 800px;
+            text-align: center; /* Ensures everything in the container is centered */
+        }
+        .search-container {
+            display: flex;
+            justify-content: center; /* Center the search bar and button */
+            margin-bottom: 20px;
+        }
+        .search-container input, .search-container button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+        }
+        .search-container input {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        .search-container button {
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        .progress-container {
+            width: 100%;
+            height: 20px;
+            background: #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .progress {
+            width: 0%;
+            height: 100%;
+            background: #4CAF50;
+            border-radius: 10px;
+        }
+        .volume-slider {
+            width: 100%;
+            margin-top: 10px;
+        }
+        #music-list {
+            list-style: none;
+            padding: 0;
+            max-height: 150px;
+            overflow-y: auto;
+            text-align: left; /* Text alignment for list items */
+        }
+        #music-list li {
+            cursor: pointer;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            background: rgba(255, 255, 255, 0.1);
+            margin-top: 5px;
+        }
+        #music-list li:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .control {
+            margin-top: 10px;
+        }
+        .control button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .lyrics-container {
+            margin-top: 20px;
+        }
+        #album-cover {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            margin: 20px auto; /* This centers the album cover horizontally */
+            animation: rotate 10s linear infinite;
+            animation-play-state: paused; /* Initial state is paused */
+        }
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>音乐播放器</h1>
+        <img id="album-cover" src="" alt="Album Cover">
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="输入歌曲名称搜索">
+            <button onclick="searchMusic()">搜索</button>
+        </div>
+        <div class="control">
+            <button onclick="togglePlay()">播放/暂停</button>
+        </div>
+        <div class="progress-container" onclick="setProgress(event)">
+            <div class="progress" id="progress"></div>
+        </div>
+        <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="100" oninput="setVolume(this.value)">
+        <ul id="music-list"></ul>
+        <div class="lyrics-container">
+            <div id="lyric-prev"></div>
+            <div id="lyric-current" style="font-weight: bold; font-size: larger;"></div>
+            <div id="lyric-next"></div>
+        </div>
+    </div>
+
+    <script>
+        var audio = new Audio();
+        var isPlaying = false;
+        var apiKey = '18fbe652967ef8ddad9ea6007ca313ca';
+
+        function searchMusic() {
+            var query = document.getElementById('search-input').value;
+            var url = `https://api.linhun.vip/api/wyyyy?name=${encodeURIComponent(query)}&apiKey=${apiKey}`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200 && data.data.length > 0) {
+                        displayMusicList(data.data);
+                    } else {
+                        alert('未找到歌曲');
+                    }
+                })
+                .catch(error => console.error('Error searching songs:', error));
+        }
+
+        function displayMusicList(songs) {
+            var list = document.getElementById('music-list');
+            list.innerHTML = '';
+            songs.forEach((song, index) => {
+                var item = document.createElement('li');
+                item.innerText = song.name;
+                item.onclick = () => playSong(index + 1);
+                list.appendChild(item);
+            });
+        }
+
+        function playSong(index) {
+            var query = document.getElementById('search-input').value;
+            var url = `https://api.linhun.vip/api/wyyyy?name=${encodeURIComponent(query)}&n=${index}&apiKey=${apiKey}`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.mp3) {
+                        audio.src = data.mp3;
+                        audio.play();
+                        isPlaying = true;
+                        document.getElementById('album-cover').src = data.img;  // Set cover image
+                        document.getElementById('album-cover').style.animationPlayState = 'running';  // Start rotation
+                    } else {
+                        alert('No song or mp3 link found');
+                    }
+                })
+                .catch(error => console.error('Error getting song details:', error));
+        }
+
+        function setProgress(event) {
+            const width = event.currentTarget.clientWidth;
+            const clickX = event.offsetX;
+            const duration = audio.duration;
+            audio.currentTime = (clickX / width) * duration;
+        }
+
+        function togglePlay() {
+            if (audio.paused) {
+                audio.play();
+                isPlaying = true;
+                document.getElementById('album-cover').style.animationPlayState = 'running';  // Resume rotation
+            } else {
+                audio.pause();
+                isPlaying = false;
+                document.getElementById('album-cover').style.animationPlayState = 'paused';  // Pause rotation
+            }
+        }
+
+        function setVolume(value) {
+            audio.volume = value / 100;
+        }
+    </script>
+</body>
+</html>
