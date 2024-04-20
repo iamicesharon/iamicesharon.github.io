@@ -1,3 +1,4 @@
+<!--版权原因，1.3版本以1.1版本为基础-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,7 +24,7 @@
             background: rgba(0, 0, 0, 0.3);
             width: 90%;
             max-width: 800px;
-            overflow: hidden; /* Ensure the container clips the content */
+            overflow: hidden;
         }
         .search-container {
             display: flex;
@@ -64,8 +65,8 @@
         #music-list {
             list-style: none;
             padding: 0;
-            max-height: 150px; /* Set a maximum height for the list */
-            overflow-y: auto; /* Enable vertical scrolling */
+            max-height: 150px;
+            overflow-y: auto;
         }
         #music-list li {
             cursor: pointer;
@@ -94,11 +95,38 @@
             text-align: center;
             margin-top: 20px;
         }
+        .album-cover {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-size: cover;
+            margin: 20px auto;
+            animation: rotateDisc linear 0s infinite; /* Animation applied here */
+        }
+        @keyframes rotateDisc {
+            from {transform: rotate(0deg);}
+            to {transform: rotate(360deg);}
+        }
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+
+        #album-cover {
+            width: 120px; /* 调整尺寸 */
+            height: 120px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            margin: 20px auto;
+            animation: rotate 10s linear infinite;
+            animation-play-state: paused; /* 初始状态是暂停 */
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>音乐播放器</h1>
+        <img id="album-cover" src="" alt="封面">
         <div class="search-container">
             <input type="text" id="search-input" placeholder="输入歌曲名称搜索">
             <button onclick="searchMusic()">搜索</button>
@@ -109,7 +137,7 @@
         <div class="progress-container" onclick="setProgress(event)">
             <div class="progress" id="progress"></div>
         </div>
-        <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="100">
+        <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="100" oninput="setVolume(this.value)">
         <ul id="music-list"></ul>
         <div class="lyrics-container">
             <div id="lyric-prev"></div>
@@ -157,26 +185,20 @@
         function playSong(index) {
             var query = document.getElementById('search-input').value;
             var url = `https://api.linhun.vip/api/wyyyy?name=${encodeURIComponent(query)}&n=${index}&apiKey=${apiKey}`;
-            console.log("Play Song URL: " + url);
-
             fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    console.log("Song info response:", data);
-                    if (data.mp3) {
-                        audio.src = data.mp3;
-                        audio.play();
-                        isPlaying = true;
-                        currentLyrics = data.lyric.map((line) => ({
-                            text: line.name,
-                            time: parseLyricTime(line.time)
-                        }));
-                        updateProgress();
-                    } else {
-                        alert('未找到歌曲或mp3链接');
-                    }
-                })
-                .catch(error => console.error('获取歌曲详情时发生错误:', error));
+            .then(response => response.json())
+            .then(data => {
+                if (data.mp3) {
+                    document.getElementById('album-cover').src = data.img;  // 设置封面图片
+                    document.getElementById('album-cover').style.animationPlayState = 'paused';  // 初始停止旋转
+                    audio.src = data.mp3;
+                    audio.play();
+                    isPlaying = true;
+                    document.getElementById('album-cover').style.animationPlayState = 'running';  // 开始旋转
+                } else {
+                    alert('未找到歌曲或mp3链接');
+                }
+            });
         }
 
         function updateProgress() {
@@ -184,6 +206,11 @@
                 var progress = (audio.currentTime / audio.duration) * 100;
                 document.getElementById('progress').style.width = progress + '%';
                 updateLyrics(audio.currentTime);
+                if (audio.paused) {
+                    document.getElementById('album-cover').style.animationDuration = '0s'; // Stop rotating
+                } else {
+                    document.getElementById('album-cover').style.animationDuration = '10s'; // Continue rotating
+                }
             });
         }
 
@@ -215,11 +242,19 @@
             if (audio.paused) {
                 audio.play();
                 isPlaying = true;
+                document.getElementById('album-cover').style.animationPlayState = 'running';
             } else {
                 audio.pause();
                 isPlaying = false;
+                document.getElementById('album-cover').style.animationPlayState = 'paused';
             }
         }
+        function setVolume(value) {
+            audio.volume = value / 100;  // 正确设置音量
+        }
+        document.getElementById('volume-slider').oninput = function() {
+            setVolume(this.value);  // 更新音量控制
+        };
     </script>
 </body>
 </html>
