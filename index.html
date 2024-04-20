@@ -5,13 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sharon的个人网站</title>
     <style>
-        /* 定义第一个字体样式 */
         @font-face {
             font-family: "ZCOOLKuaile";
             src: url("站酷仓耳渔阳体 W05.ttf") format("truetype");
         }
 
-        /* 定义第二个字体样式 */
         @font-face {
             font-family: "YSHAOSHENTI";
             src: url("YSHAOSHENTI-2.TTF") format("truetype");
@@ -273,12 +271,10 @@
             <option value="white-gray-black">白色 灰色 黑色</option>
         </select>
     </div>    
-
     <div class="container">
         <div id="home" style="display: block;"> <!-- Parent container for Home tab -->
             <div class="box">一个平平无奇的小站~</div>
             <div class="box">👈这里有很多选项卡，你可以看看！</div>
-
         </div>
         <div id="about" style="display:none;">
             <div class="box">
@@ -287,6 +283,11 @@
             </div>
         </div>
         <div id="projects" style="display:none;">
+            <div class="box">
+                <h2>最新!音乐接口!免费听歌!</h2>
+                <p>跳转吧!</p>
+                <a href="单个功能/网易云音乐/网易云音乐最新版本.html">点我!</a>
+            </div>
             <div class="box">
                 <h2>随机生成算式</h2>
                 <p>点击生成后，会需要一段加载时间。一个数字仅能生成一张图片</p>
@@ -304,7 +305,6 @@
                 <p>选择图片进行AI抠图处理</p>
                 <input type="file" id="mattingInput" accept="image/png, image/jpeg">
                 <button id="mattingButton" onclick="fetchMattingImage()">上传并处理图片</button>
-                <!-- Placeholder for the processed image -->
                 <div id="mattingResult"></div>
             </div>
             <div class="box">
@@ -386,7 +386,26 @@
                 <button onclick="fetchTrackingInfo()">查询物流</button>
                 <div id="trackingResult"></div>
             </div>         
-
+            <div id="fuelPriceCheck" class="box">
+                <h2>油价查询</h2>
+                <input type="text" id="provinceInput" placeholder="输入省份名称，例如‘河南’">
+                <button onclick="fetchOilPrice()">查询油价</button>
+                <div id="oilPriceResult"></div>
+            </div>
+            <div class="box">
+                <h2>万年历查询</h2>
+                <p>比较慢，稍微耐心等一下</p>
+                <input type="date" id="date-input">
+                <button onclick="fetchCalendarInfo()">查询日期</button>
+                <div id="calendar-display-area"></div>
+            </div>
+            <div class="box">
+                <h2>AI画图</h2>
+                <p>亿点点慢，耐心一点</p>
+                <input type="text" id="drawingDescription" placeholder="英文的绘画描述" />
+                <button onclick="generateDrawing()">生成图像</button>
+                <img id="drawingResult" src="" alt="AI图片将在这里显示" style="max-width: 100%;"/>
+            </div>
         </div>        
         <div id="contact" style="display:none;">
             <div class="box">Email:
@@ -394,12 +413,10 @@
             </div>
         </div>
     </div>    
-    <script src="https://api.vvhan.com/api/script/bolang"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             fetchTimeGreeting(); // Fetch and display the greeting message as soon as the page loads
         });
-
         function fetchTimeGreeting() {
             fetch('https://api.songzixian.com/api/greeting?dataSource=LOCAL_TIME_GREETING')
                 .then(response => response.json())
@@ -415,18 +432,13 @@
                     console.error('Error fetching time-based greeting:', error);
                 });
         }
-
         function switchTab(tabId) {
-            // Hide all tab content
             var tabContents = document.querySelectorAll('.container > div');
             tabContents.forEach(function(content) {
                 content.style.display = 'none';
             });
-
-            // Show the selected tab content
             document.getElementById(tabId).style.display = 'block';
         }
-
         function changeTheme(themeName) {
             if (["blue-purple", "light-pink-yellow", "yellow-orange", "red-garnet", "light-blue-dark-blue", "white-gray-black"].includes(themeName)) {
                 document.body.className = themeName;
@@ -434,7 +446,6 @@
                 alert("呃...似乎没有这种风格");
             }
         }
-
         function fetchDailySentence() {
             fetch('https://api.vvhan.com/api/ian/rand?type=json')
                 .then(response => response.json())
@@ -444,36 +455,27 @@
                 })
                 .catch(error => console.error('Error fetching daily sentence:', error));
         }
-
-        // Add the fetchExpressionImage function here
         function fetchExpressionImage() {
             const number = document.getElementById('numberInput').value || 888; // Use default value if input is empty
             const apiUrl = `https://www.zengyulin.cn/fun-img/img/expr?number=${number}`;
             const imageContainer = document.querySelector('#projects .box'); // Ensure this selector matches your image container
-
             const img = document.createElement('img');
             img.src = apiUrl;
             img.alt = '随机生成的算式';
             img.style.width = '100%';
-
             const existingImg = imageContainer.querySelector('img');
             if (existingImg) {
                 imageContainer.removeChild(existingImg);
             }
-
             imageContainer.appendChild(img);
         }
-
-        // Call fetchExpressionImage when the "projects" tab is clicked
         document.getElementById('projects').addEventListener('click', fetchExpressionImage);
-
         function fetchMattingImage() {
             const input = document.getElementById('mattingInput');
             if (input.files.length > 0) {
                 const file = input.files[0];
                 const formData = new FormData();
                 formData.append('file', file);
-                
                 fetch('https://api.oioweb.cn/api/ai/matting', {
                     method: 'POST',
                     body: formData
@@ -495,7 +497,6 @@
                 alert("请选择一个图片文件进行上传");
             }
         }
-
         function fetchDictResult() {
             const text = document.getElementById('dictInput').value;
             if (text.trim() !== '') {
@@ -520,14 +521,12 @@
                 alert("请输入有效的汉字");
             }
         }
-
         function fetchOcrResult() {
             const input = document.getElementById('ocrInput');
             if (input.files.length > 0) {
                 const file = input.files[0];
                 const formData = new FormData();
                 formData.append('file', file);
-                
                 fetch('https://api.oioweb.cn/api/ocr', {
                     method: 'POST',
                     body: formData
@@ -549,7 +548,6 @@
                 alert("请选择一个图片文件进行上传");
             }
         }
-
         function fetchWeather() {
             const city = document.getElementById('cityInput').value; // Get city from input field
             const type = document.getElementById('typeSelect').value;
@@ -626,7 +624,6 @@
             const text = document.getElementById('translateInput').value;
             const direction = document.getElementById('translateDirection').value;
             const apiUrl = `https://api.oioweb.cn/api/txt/QQFanyi?sourceText=${encodeURIComponent(text)}&type=${direction}`;
-
             if (text.trim() !== '') {
                 fetch(apiUrl)
                     .then(response => response.json())
@@ -673,7 +670,6 @@
             } else {
                 apiUrl = 'https://api.vvhan.com/api/zhichang?type=json';
             }
-
             fetch(apiUrl)
                 .then(response => response.json())
                 .then(data => {
@@ -690,19 +686,14 @@
                 });
         }
         function switchTab(tabId) {
-            // Hide all tab content and remove 'active' class
             var tabContents = document.querySelectorAll('.container > div');
             tabContents.forEach(function(content) {
                 content.style.display = 'none';
                 content.classList.remove('active');
             });
-
-            // Delay display block to allow CSS transition
             setTimeout(function() {
-                // Show the selected tab content
                 var activeTab = document.getElementById(tabId);
                 activeTab.style.display = 'block';
-                // Timeout to apply opacity transition after display change
                 setTimeout(function() {
                     activeTab.classList.add('active');
                 }, 10);
@@ -714,7 +705,6 @@
                 const file = input.files[0];
                 const formData = new FormData();
                 formData.append('file', file);
-
                 fetch('https://api.oioweb.cn/api/ocr/recognition', {
                     method: 'POST',
                     body: formData
@@ -770,7 +760,6 @@
         function fetchTrackingInfo() {
             const trackingNumber = document.getElementById('trackingInput').value;
             const apiUrl = `https://api.songzixian.com/api/express-tracking?dataSource=nationwide_express&trackingNumber=${trackingNumber}`; // Use the actual API URL
-
             fetch(apiUrl)
             .then(response => response.json())
             .then(data => {
@@ -792,6 +781,96 @@
                 document.getElementById('trackingResult').innerHTML = 'An error occurred while fetching tracking information.';
             });
         }
+        function fetchOilPrice() {
+            const province = document.getElementById('provinceInput').value;
+            if (!province) {
+                alert("Please enter a province name.");
+                return;
+            }
+            const apiUrl = `https://api.qqsuu.cn/api/dm-oilprice?prov=${encodeURIComponent(province)}`;
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200 && data.data) {
+                        document.getElementById('oilPriceResult').innerHTML = `
+                            <p><strong>省份:</strong> ${data.data.prov}</p>
+                            <p><strong>0号柴油:</strong> ${data.data.p0} RMB</p>
+                            <p><strong>89号汽油:</strong> ${data.data.p89} RMB</p>
+                            <p><strong>92号汽油:</strong> ${data.data.p92} RMB</p>
+                            <p><strong>95号汽油:</strong> ${data.data.p95} RMB</p>
+                            <p><strong>98号汽油:</strong> ${data.data.p98} RMB</p>
+                            <p><strong>上次更新数据时间:</strong> ${data.data.time}</p>
+                        `;
+                    } else {
+                        document.getElementById('oilPriceResult').innerHTML = '查询错误';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching oil price:', error);
+                    document.getElementById('oilPriceResult').innerHTML = '查询错误';
+                });
+        }
+        async function fetchCalendarInfo() {
+            const inputDate = document.getElementById('date-input').value;
+            const apiUrl = `https://www.36jxs.com/api/Commonweal/almanac?sun=${inputDate}`;
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                displayCalendarData(data);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                document.getElementById('calendar-display-area').innerText = 'Failed to fetch data.';
+            }
+        }
+        function displayCalendarData(data) {
+            if(data.code !== 1) {
+                document.getElementById('calendar-display-area').innerText = 'No data available for this date.';
+                return;
+            }
+            let htmlContent = `
+                <p>公历日期时间: ${data.data.GregorianDateTime}</p>
+                <p>农历日期时间: ${data.data.LunarDateTime}</p>
+                <p>农历节日: ${data.data.LJie}</p>
+                <p>公历节日: ${data.data.GJie}</p>
+                <p>宜: ${data.data.Yi}</p>
+                <p>忌: ${data.data.Ji}</p>
+                <p>神位: ${data.data.ShenWei}</p>
+                <p>胎神: ${data.data.Taishen}</p>
+                <p>冲煞: ${data.data.Chong}</p>
+                <p>岁煞: ${data.data.SuiSha}</p>
+                <p>五行甲子: ${data.data.WuxingJiazi}</p>
+                <p>纳音五行年: ${data.data.WuxingNaYear}</p>
+                <p>纳音五行月: ${data.data.WuxingNaMonth}</p>
+                <p>纳音五行日: ${data.data.WuxingNaDay}</p>
+                <p>农历月名称: ${data.data.MoonName}</p>
+                <p>星宿吉凶(东方星座): ${data.data.XingEast}</p>
+                <p>四方(星座): ${data.data.XingWest}</p>
+                <p>彭祖百忌: ${data.data.PengZu}</p>
+                <p>黄历12值神建: ${data.data.JianShen}</p>
+                <p>天干地支年: ${data.data.TianGanDizhiYear}</p>
+                <p>天干地支月: ${data.data.TianGanDiZhiMonth}</p>
+                <p>天干地支日: ${data.data.TianGanDiZhiDay}</p>
+                <p>农历月名称: ${data.data.LMonthName}</p>
+                <p>生肖: ${data.data.LYear}</p>
+                <p>农历月: ${data.data.LMonth}</p>
+                <p>农历日: ${data.data.LDay}</p>
+                <p>农历节气的名称: ${data.data.SolarTermName}</p>
+            `;
+            document.getElementById('calendar-display-area').innerHTML = htmlContent;
+        }
+        function generateDrawing() {
+            var desc = document.getElementById('drawingDescription').value;
+            var apiUrl = `https://ai.cloudroo.top/draw/?t=${encodeURIComponent(desc)}`;
+            fetch(apiUrl).then(function(response) {
+                return response.blob();
+            }).then(function(imageBlob) {
+                var imageUrl = URL.createObjectURL(imageBlob);
+                document.getElementById('drawingResult').src = imageUrl;
+            }).catch(function(error) {
+                console.error('失败了:', error);
+            });
+        }
     </script>
+    <script src="https://api.vvhan.com/api/script/bolang"></script>
 </body>
 </html>
