@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>音乐播放器</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { max-width: 800px; margin: auto; }
+        .search-container { margin-bottom: 20px; }
+        .progress-container { width: 100%; height: 5px; background: #ddd; cursor: pointer; }
+        .progress { width: 0%; height: 100%; background: #4CAF50; }
+        .volume-slider { width: 100px; margin-top: 10px; }
+        #music-list { list-style: none; padding: 0; }
+        #music-list li { cursor: pointer; padding: 10px; border-bottom: 1px solid #ddd; }
+        #music-list li:hover { background-color: #f5f5f5; }
+        .control { margin-top: 10px; text-align: center; }
+        .control button { padding: 5px 15px; margin-right: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>音乐播放器</h1>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="输入歌曲名称搜索">
+            <button onclick="searchMusic()">搜索</button>
+        </div>
+        <div class="control">
+            <button onclick="togglePlay()">播放/暂停</button>
+            <button onclick="stopMusic()">停止</button>
+        </div>
+        <div class="progress-container" onclick="setProgress(event)">
+            <div class="progress" id="progress"></div>
+        </div>
+        <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="100">
+        <ul id="music-list"></ul>
+    </div>
+
+    <script>
+        var audio = new Audio();
+        var isPlaying = false;
+        var apiKey = '18fbe652967ef8ddad9ea6007ca313ca';
+
+        function searchMusic() {
+            var query = document.getElementById('search-input').value;
+            var url = `https://api.linhun.vip/api/wyyyy?name=${encodeURIComponent(query)}&apiKey=${apiKey}`;
+            console.log("Search URL: " + url);
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Search Response:", data);
+                    if (data.code === 200 && data.data.length > 0) {
+                        displayMusicList(data.data);
+                    } else {
+                        alert('未找到歌曲');
+                    }
+                })
+                .catch(error => console.error('搜索歌曲时发生错误:', error));
+        }
+
+        function displayMusicList(songs) {
+            var list = document.getElementById('music-list');
+            list.innerHTML = '';
+            songs.forEach((song, index) => {
+                var item = document.createElement('li');
+                item.innerText = song.name;
+                item.onclick = function() { playSong(index + 1); };
+                list.appendChild(item);
+            });
+        }
+
+        function playSong(index) {
+            var query = document.getElementById('search-input').value;
+            var url = `https://api.linhun.vip/api/wyyyy?name=${encodeURIComponent(query)}&n=${index}&apiKey=${apiKey}`;
+            alert(index)
+            console.log("Play Song URL: " + url);
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Song info response:", data);
+                    if (data.mp3) {
+                        audio.src = data.mp3;
+                        audio.play();
+                        isPlaying = true;
+                        updateProgress();
+                    } else {
+                        alert('未找到歌曲或mp3链接');
+                    }
+                })
+                .catch(error => console.error('获取歌曲详情时发生错误:', error));
+        }
+
+        function updateProgress() {
+            audio.addEventListener('timeupdate', () => {
+                var progress = (audio.currentTime / audio.duration) * 100;
+                document.getElementById('progress').style.width = progress + '%';
+            });
+        }
+
+        function setProgress(event) {
+            const width = event.currentTarget.clientWidth;
+            const clickX = event.offsetX;
+            const duration = audio.duration;
+            audio.currentTime = (clickX / width) * duration;
+        }
+
+        function togglePlay() {
+            if (audio.paused) {
+                audio.play();
+                isPlaying = true;
+            } else {
+                audio.pause();
+                isPlaying = false;
+            }
+        }
+
+        function stopMusic() {
+            audio.pause();
+            audio.currentTime = 0;
+            isPlaying = false;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>简繁字体转换器</title>
+<style>
+    body { font-family: Arial, sans-serif; padding: 40px; background-color: #f7f7f7; }
+    #container { background: white; width: 400px; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin: auto; }
+    input[type="text"], #output { width: 100%; padding: 10px; margin-top: 10px; border-radius: 4px; border: 1px solid #ddd; }
+    button { width: 49%; padding: 10px; border: none; color: white; background-color: #007BFF; border-radius: 4px; cursor: pointer; margin-top: 20px; }
+    button:hover { background-color: #0056b3; }
+</style>
+</head>
+<body>
+<div id="container">
+    <h2>简繁字体转换器</h2>
+    <input type="text" id="inputText" placeholder="请输入文字...">
+    <button onclick="convertText(1)">繁体转简体</button>
+    <button onclick="convertText(2)">简体转繁体</button>
+    <div id="output" readonly></div>
+</div>
+
+<script>
+function convertText(type) {
+    var inputText = document.getElementById("inputText").value;
+    var apiUrl = `https://zj.v.api.aa1.cn/api/jfchange/?msg=${encodeURIComponent(inputText)}&type=${type}`;
+    fetch(apiUrl)
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById("output").textContent = data.message;
+    })
+    .catch(error => console.error('错误:', error));
+}
+</script>
+</body>
+</html>

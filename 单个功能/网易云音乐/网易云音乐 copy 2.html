@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>音乐播放器</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { max-width: 800px; margin: auto; }
+        .search-container { margin-bottom: 20px; }
+        .progress-container { width: 100%; height: 5px; background: #ddd; cursor: pointer; } /* 添加鼠标指针样式 */
+        .progress { width: 0%; height: 100%; background: #4CAF50; }
+        .volume-slider { width: 100px; margin-top: 10px; }
+        #music-list { list-style: none; padding: 0; }
+        #music-list li { cursor: pointer; padding: 10px; border-bottom: 1px solid #ddd; }
+        #music-list li:hover { background-color: #f5f5f5; }
+        .control { margin-top: 10px; text-align: center; }
+        .control button { padding: 5px 15px; margin-right: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>音乐播放器</h1>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="输入歌曲名称搜索">
+            <button onclick="searchMusic()">搜索</button>
+        </div>
+        <div class="control">
+            <button onclick="togglePlay()">播放/暂停</button>
+        </div>
+        <div class="progress-container" onclick="setProgress(event)">
+            <div class="progress" id="progress"></div>
+        </div>
+        <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="100">
+        <ul id="music-list"></ul>
+    </div>
+
+    <script>
+        var audio = new Audio();
+        var apiKey = '18fbe652967ef8ddad9ea6007ca313ca';
+        var isPlaying = false;
+
+        function searchMusic() {
+            var query = document.getElementById('search-input').value;
+            var url = `https://api.linhun.vip/api/wyyyy?name=${encodeURIComponent(query)}&n=1&apiKey=${apiKey}`; 
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        var song = data;
+                        audio.src = song.mp3;
+                        audio.volume = document.getElementById('volume-slider').value / 100;
+                        updateMusicList(song, true);
+                    } else {
+                        alert('未找到歌曲');
+                    }
+                })
+                .catch(error => console.error('搜索歌曲时发生错误:', error));
+        }
+
+        function updateMusicList(song, play) {
+            var list = document.getElementById('music-list');
+            list.innerHTML = '';
+            var item = document.createElement('li');
+            item.innerText = song.name + ' - ' + song.author;
+            if (play) {
+                item.classList.add('playing');
+            }
+            item.onclick = function() {
+                audio.src = song.mp3;
+                audio.load();
+                audio.play();
+                updateMusicList(song, true);
+            };
+            list.appendChild(item);
+
+            audio.addEventListener('timeupdate', () => {
+                var progress = (audio.currentTime / audio.duration) * 100;
+                document.getElementById('progress').style.width = progress + '%';
+            });
+
+            document.getElementById('volume-slider').oninput = function() {
+                audio.volume = this.value / 100;
+            };
+        }
+
+        function togglePlay() {
+            if (audio.paused) {
+                audio.play();
+                isPlaying = true;
+            } else {
+                audio.pause();
+                isPlaying = false;
+            }
+        }
+
+        function setProgress(event) {
+            const width = event.target.clientWidth; // 获取进度条的宽度
+            const clickX = event.offsetX; // 获取点击位置的X坐标
+            const duration = audio.duration; // 音频的总时长
+            audio.currentTime = (clickX / width) * duration; // 计算并更新音频的当前播放时间
+        }
+    </script>
+</body>
+</html>

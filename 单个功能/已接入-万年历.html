@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Perpetual Calendar</title>
+</head>
+<body>
+    <input type="date" id="date-input">
+    <button onclick="fetchData()">Get Almanac Data</button>
+    <div id="display-area"></div>
+    <script>
+        async function fetchData() {
+            const inputDate = document.getElementById('date-input').value;
+            const apiUrl = `https://www.36jxs.com/api/Commonweal/almanac?sun=${inputDate}`;
+            
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                displayData(data);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                document.getElementById('display-area').innerText = 'Failed to fetch data.';
+            }
+        }
+
+        function displayData(data) {
+            if(data.code !== 1) {
+                document.getElementById('display-area').innerText = 'No data available for this date.';
+                return;
+            }
+            let htmlContent = `
+                <p>公历日期时间: ${data.data.GregorianDateTime}</p>
+                <p>农历日期时间: ${data.data.LunarDateTime}</p>
+                <p>农历节日: ${data.data.LJie}</p>
+                <p>公历节日: ${data.data.GJie}</p>
+                <p>宜: ${data.data.Yi}</p>
+                <p>忌: ${data.data.Ji}</p>
+                <p>神位: ${data.data.ShenWei}</p>
+                <p>胎神: ${data.data.Taishen}</p>
+                <p>冲煞: ${data.data.Chong}</p>
+                <p>岁煞: ${data.data.SuiSha}</p>
+                <p>五行甲子: ${data.data.WuxingJiazi}</p>
+                <p>纳音五行年: ${data.data.WuxingNaYear}</p>
+                <p>纳音五行月: ${data.data.WuxingNaMonth}</p>
+                <p>纳音五行日: ${data.data.WuxingNaDay}</p>
+                <p>农历月名称: ${data.data.MoonName}</p>
+                <p>星宿吉凶(东方星座): ${data.data.XingEast}</p>
+                <p>四方(星座): ${data.data.XingWest}</p>
+                <p>彭祖百忌: ${data.data.PengZu}</p>
+                <p>黄历12值神建: ${data.data.JianShen}</p>
+                <p>天干地支年: ${data.data.TianGanDizhiYear}</p>
+                <p>天干地支月: ${data.data.TianGanDiZhiMonth}</p>
+                <p>天干地支日: ${data.data.TianGanDiZhiDay}</p>
+                <p>农历月名称: ${data.data.LMonthName}</p>
+                <p>生肖: ${data.data.LYear}</p>
+                <p>农历月: ${data.data.LMonth}</p>
+                <p>农历日: ${data.data.LDay}</p>
+                <p>农历节气的名称: ${data.data.SolarTermName}</p>
+            `;
+            document.getElementById('display-area').innerHTML = htmlContent;
+        }
+    </script>
+</body>
+</html>

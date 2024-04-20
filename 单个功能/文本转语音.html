@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>文字转语音示例</title>
+    <style>
+        #loadingText {
+            color: red;
+            display: none;  /* Initially hidden */
+        }
+    </style>
+</head>
+<body>
+    <h1>文字转语音工具</h1>
+    <input type="text" id="textToConvert" placeholder="输入文字">
+    <button onclick="convertToSpeech()">转换</button>
+    <p id="loadingText">加载中，请稍候...</p>
+    <audio id="audioPlayer" controls hidden></audio>
+
+    <script>
+        function convertToSpeech() {
+            const text = document.getElementById('textToConvert').value;
+            const apiKey = '你的API密钥';  // 替换成你的API密钥
+            const apiUrl = `https://api.linhun.vip/api/song?per=0&pit=5&vol=9&spd=5&tex=${encodeURIComponent(text)}&apiKey=${apiKey}`;
+
+            // Display loading text
+            document.getElementById('loadingText').style.display = 'block';
+            document.getElementById('audioPlayer').hidden = true;  // Hide the player while loading
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200 && data.url) {
+                        checkAudioValidity(data.url);
+                    } else {
+                        document.getElementById('loadingText').style.display = 'none';
+                        alert('音频生成失败: ' + data.msg);
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('loadingText').style.display = 'none';
+                    console.error('请求失败:', error);
+                    alert('发生错误，查看控制台了解详情。');
+                });
+        }
+
+        function checkAudioValidity(url) {
+            let attempts = 0;
+            const maxAttempts = 10;  // Maximum number of attempts to check for a valid file
+            const interval = setInterval(() => {
+                fetch(url)
+                    .then(response => {
+                        if (response.ok && response.headers.get('content-length') > 100) {  // Check if the audio file is larger than 100 bytes
+                            clearInterval(interval);
+                            document.getElementById('loadingText').style.display = 'none';
+                            const audioPlayer = document.getElementById('audioPlayer');
+                            audioPlayer.src = url;
+                            audioPlayer.hidden = false;
+                            audioPlayer.play();
+                        } else {
+                            attempts++;
+                            if (attempts >= maxAttempts) {
+                                clearInterval(interval);
+                                document.getElementById('loadingText').style.display = 'none';
+                                alert('无法加载有效的音频文件，请稍后再试。');
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        clearInterval(interval);
+                        document.getElementById('loadingText').style.display = 'none';
+                        console.error('文件检查失败:', error);
+                        alert('发生错误，查看控制台了解详情。');
+                    });
+            }, 3000);  // Check every 3 seconds
+        }
+    </script>
+</body>
+</html>

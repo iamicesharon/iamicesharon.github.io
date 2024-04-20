@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI画图</title>
+    <style>
+        @font-face {
+            font-family: "ZCOOLKuaile";
+            src: url("../站酷仓耳渔阳体 W05.ttf") format("truetype");
+        }
+
+        @font-face {
+            font-family: "YSHAOSHENTI";
+            src: url("../YSHAOSHENTI-2.TTF") format("truetype");
+        }
+
+        body {
+            background-color: #f4f4f9;
+            margin: 20px;
+            padding: 0;
+        }
+        h2 {
+            font-family: "ZCOOLKuaile", sans-serif;
+            font-size: 50px;
+            color: #333;
+        }
+        form {
+            font-family: "ZCOOLKuaile", sans-serif;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        label {
+            font-family: "ZCOOLKuaile", sans-serif;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"] {
+            font-family: "ZCOOLKuaile", sans-serif;
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 16px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box; /* added to include padding in width */
+        }
+        input[type="radio"] {
+            font-family: "ZCOOLKuaile", sans-serif;
+            margin-right: 5px;
+        }
+        button {
+            font-family: "ZCOOLKuaile", sans-serif;
+            background-color: #5c67f2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        img {
+            font-family: "ZCOOLKuaile", sans-serif;
+            max-width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h2>AI画图</h2>
+    <form id="imageForm">
+        <label for="text">正向提示词(中文,例如:一只小猫):</label>
+        <input type="text" id="text" name="text" required><br><br>
+        <label for="prompt">反向提示词(中文,例如:水印,最差质量,低质量,裁剪):</label>
+        <input type="text" id="prompt" name="prompt" required><br><br>
+        <label>选择图片尺寸:</label>
+        <input type="radio" id="square" name="ratio" value="方" checked> 方形
+        <input type="radio" id="wide" name="ratio" value="宽"> 宽
+        <input type="radio" id="tall" name="ratio" value="高"> 高<br><br>
+        <p>如果失败了，可以重新点击生成图片</p>
+        <button type="button" onclick="generateImage()">生成图片!</button>
+    </form>
+    <br>
+    <img id="resultImage" src="" alt="Generated Image Will Appear Here" hidden>
+    <script>
+        function generateImage() {
+            const text = document.getElementById('text').value;
+            const prompt = document.getElementById('prompt').value;
+            const ratio = document.querySelector('input[name="ratio"]:checked').value;
+            const apiKey = '1936748aeccebf4f7d379145f395b0f8';
+            const apiUrl = `https://api.linhun.vip/api/huitu?text=${encodeURIComponent(text)}&prompt=${encodeURIComponent(prompt)}&ratio=${ratio}&apiKey=${apiKey}`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        const img = document.getElementById('resultImage');
+                        img.src = data.url;
+                        img.hidden = false;
+                    } else {
+                        alert('Failed to generate image: ' + data.msg);
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error);
+                });
+        }
+    </script>
+</body>
+</html>
