@@ -293,7 +293,7 @@
             <div class="box">
                 <h2>最新!音乐接口!免费听歌!</h2>
                 <p>跳转吧!</p>
-                <a href="单个功能/网易云音乐/网易云音乐最新版本.html">点我!</a>
+                <a href="单个功能/网易云音乐/音乐播放器最新版本.html">点我!</a>
             </div>
             <div class="box">
                 <h2>每日一言</h2>
@@ -406,6 +406,37 @@
                 <button onclick="generateDrawing()">生成图像</button>
                 <img id="drawingResult" src="" alt="AI图片将在这里显示" style="max-width: 100%;"/>
             </div>
+            <div class="box">
+                <h2>火车查询</h2>
+                <p>请输入出发地和目的地，选择日期查询交通信息。</p>
+                <input type="text" id="departureInput" placeholder="输入出发地">
+                <input type="text" id="arrivalInput" placeholder="输入目的地">
+                <input type="date" id="dateInput">
+                <button onclick="fetchTrafficInfo()">查询交通信息</button>
+                <div id="trafficInfoResult"></div>
+            </div>
+            <div class="box">
+                <h2>文本转语音</h2>
+                <p>输入文本并选择参数生成语音。</p>
+                <textarea id="textToSpeechInput" placeholder="输入文本..."></textarea>
+                <select id="voiceSelect" title="选择发音人">
+                    <option value="0">发音人 0</option>
+                    <!--
+                    <option value="1">发音人 1</option>
+                    <option value="2">发音人 2</option>
+                    <option value="3">发音人 3</option>
+                    <option value="4">发音人 4</option>
+                    <option value="5">发音人 5</option>
+                    <option value="6">发音人 6</option>
+                    -->
+                </select>
+                <input type="number" id="speedInput" placeholder="语速 (1-10)" min="1" max="10">
+                <input type="number" id="volumeInput" placeholder="音量 (1-10)" min="1" max="10">
+                <input type="number" id="pitchInput" placeholder="音调 (1-10)" min="1" max="10">
+                <button onclick="generateSpeech()">生成语音</button>
+                <audio id="audioResult" controls></audio>
+            </div>
+            
         </div>        
         <div id="contact" style="display:none;">
             <div class="box">Email:
@@ -868,6 +899,74 @@
                 document.getElementById('drawingResult').src = imageUrl;
             }).catch(function(error) {
                 console.error('失败了:', error);
+            });
+        }
+        function fetchTrafficInfo() {
+            const departure = document.getElementById('departureInput').value;
+            const arrival = document.getElementById('arrivalInput').value;
+            const date = document.getElementById('dateInput').value || new Date().toISOString().split('T')[0];  // 如果未指定日期，默认使用当前日期
+            const apiKey = '9c84aa42b58e6d24a06ebd3f151c3ef0';  // 请替换成您的API密钥
+            const url = `https://api.linhun.vip/api/hcpcx?departure=${encodeURIComponent(departure)}&arrival=${encodeURIComponent(arrival)}&date=${date}&apiKey=${apiKey}`;
+
+            fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.code === 200) {
+                    const resultHTML = `
+                        <p>起点: ${data.数据.起点}</p>
+                        <p>终点: ${data.数据.终点}</p>
+                        <p>时间: ${data.数据.时间}</p>
+                        ${data.数据.信息.map(info => `
+                            <div>
+                                <h4>${info.班次}</h4>
+                                <p>耗时: ${info.耗时}</p>
+                                <p>类型: ${info.类型}</p>
+                                <p>详情: ${info.详情.map(detail => `
+                                    <span>${detail.坐型} - ${detail.状态} - ￥${detail.价格}</span>
+                                `).join('<br>')}</p>
+                            </div>
+                        `).join('')}
+                    `;
+                    document.getElementById('trafficInfoResult').innerHTML = resultHTML;
+                } else {
+                    document.getElementById('trafficInfoResult').innerHTML = `错误: ${data.msg}`;
+                }
+            })
+            .catch(error => {
+                console.error('API调用失败:', error);
+                document.getElementById('trafficInfoResult').innerHTML = '查询失败，请检查网络连接';
+            });
+        }
+        function generateSpeech() {
+            const text = document.getElementById('textToSpeechInput').value;
+            const voice = document.getElementById('voiceSelect').value;
+            const speed = document.getElementById('speedInput').value;
+            const volume = document.getElementById('volumeInput').value;
+            const pitch = document.getElementById('pitchInput').value;
+            const apiKey = '42ffe00b9006747049a32e00e450e8ab';  // Replace this with your actual API key
+
+            if (!text.trim()) {
+                alert('请输入文本');
+                return;
+            }
+
+            const url = `https://api.linhun.vip/api/song?tex=${encodeURIComponent(text)}&per=${voice}&spd=${speed}&vol=${volume}&pit=${pitch}&apiKey=${apiKey}`;
+
+            fetch(url)
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.blob();
+            })
+            .then(blob => {
+                const audioURL = URL.createObjectURL(blob);
+                const audio = document.getElementById('audioResult');
+                audio.src = audioURL;
+                audio.load();
+                audio.play();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to generate speech, please try again.');
             });
         }
     </script>
