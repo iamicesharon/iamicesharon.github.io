@@ -245,6 +245,11 @@
             .box {
                 margin-left: 0; /* Ensures boxes align with the edges */
             }
+            #hotSearchList li {
+                padding: 5px;
+                border-bottom: 1px solid #ccc;
+            }
+
         }
 
         /* Additional styling for smaller devices */
@@ -252,6 +257,21 @@
             h2, button, input[type="text"], select {
                 font-size: 14px; /* Reduces font size for readability on small devices */
             }
+        }
+
+        #hotSearchList li {
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+            list-style-type: none;
+        }
+        #hotSearch select, #hotSearch button {
+            margin-top: 5px;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        #hotSearch select {
+            cursor: pointer;
         }
     </style>
 </head>
@@ -436,6 +456,11 @@
                 <button onclick="generateSpeech()">生成语音</button>
                 <audio id="audioResult" controls></audio>
             </div>
+            <div id="hotSearch" class="box">
+                <h2>各大平台热搜榜</h2>
+                <a href="单个功能/热搜.html">点我!</a>
+            </div>
+            
             
         </div>        
         <div id="contact" style="display:none;">
@@ -969,6 +994,9 @@
                 alert('Failed to generate speech, please try again.');
             });
         }
+
+        // Optionally, call this function when a specific tab is shown or on a button click
+        document.getElementById('fetchHotSearchButton').addEventListener('click', fetchHotSearch);
     </script>
     <script src="https://api.vvhan.com/api/script/bolang"></script>
 </body>
