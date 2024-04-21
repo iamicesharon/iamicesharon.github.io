@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>音乐播放器</title>
+    <style>
+        @font-face {
+            font-family: "ZCOOLKuaile";
+            src: url("../../站酷仓耳渔阳体 W05.ttf") format("truetype");
+        }
+
+        @font-face {
+            font-family: "YSHAOSHENTI";
+            src: url("../../YSHAOSHENTI-2.TTF") format("truetype");
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .container {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            border-radius: 10px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 800px;
+            text-align: center;
+        }
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .search-container input, .search-container button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            transition: all 0.3s ease; /* Transition effect for smoothness */
+            font-family: "ZCOOLKuaile";
+        }
+        .search-container input:focus, .search-container input:hover {
+            flex-grow: 1.1; /* Slightly increase size */
+            background-color: #ffffff30; /* Change color on hover/focus */
+        }
+        .search-container button {
+            background: #784caf;
+            color: white;
+            cursor: pointer;
+            font-family: "ZCOOLKuaile";
+            transition: all 0.3s ease;
+        }
+        .search-container button:hover {
+            background: #7c3673; /* Darken the button color on hover */
+            transform: scale(1.1); /* Make the button larger */
+            font-family: "ZCOOLKuaile";
+        }
+        .progress-container {
+            width: 100%;
+            height: 20px;
+            background: #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .progress {
+            width: 0%;
+            height: 100%;
+            background: #6a4caf;
+            border-radius: 10px;
+        }
+        .volume-slider {
+            width: 100%;
+            margin-top: 10px;
+        }
+        #music-list {
+            list-style: none;
+            padding: 0;
+            max-height: 150px;
+            overflow-y: auto;
+            text-align: left;
+        }
+        #music-list li {
+            cursor: pointer;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            background: rgba(255, 255, 255, 0.1);
+            margin-top: 5px;
+            font-family: "ZCOOLKuaile";
+        }
+        #music-list li:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .control {
+            margin-top: 10px;
+        }
+        .control button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background: #784caf;
+            color: white;
+            cursor: pointer;
+            margin-right: 5px;
+            font-family: "ZCOOLKuaile";
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+        .control button:hover {
+            background-color: #7c3673; /* Darken the button color on hover */
+            transform: scale(1.1); /* Scale the button up to 110% */
+        }
+        .lyrics-container {
+            margin-top: 20px;
+            font-family: "ZCOOLKuaile";
+        }
+        #album-cover {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            margin: 20px auto;
+            animation: rotate 10s linear infinite;
+            animation-play-state: paused;
+        }
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+        h1{
+            font-family: "ZCOOLKuaile";
+            font-size: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sharon音乐播放器</h1>
+        <img id="album-cover" src="" alt="您的歌曲封面将在这里显示">
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="输入歌曲名称搜索">
+            <button onclick="searchMusic()">搜索</button>
+        </div>
+        <div class="control">
+            <button onclick="togglePlay()">播放/暂停</button>
+            <button onclick="toggleLoop()" id="loopButton">循环: 关</button>
+        </div>
+        <br>
+        <div class="progress-container" onclick="setProgress(event)">
+            <div class="progress" id="progress"></div>
+        </div>
+        <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="100" oninput="setVolume(this.value)">
+        <ul id="music-list"></ul>
+        <div class="lyrics-container">
+            <div id="lyric-prev"></div>
+            <div id="lyric-current" style="font-weight: bold; font-size: larger;"></div>
+            <div id="lyric-next"></div>
+        </div>
+    </div>
+
+    <script>
+        var audio = new Audio();
+        var isPlaying = false;
+        var currentLyrics = [];
+        var currentIndex = 0;
+        var apiKey = '18fbe652967ef8ddad9ea6007ca313ca';
+
+        function searchMusic() {
+            var query = document.getElementById('search-input').value;
+            var url = `https://api.linhun.vip/api/wyyyy?name=${encodeURIComponent(query)}&apiKey=${apiKey}`;
+            console.log("Search URL: " + url);
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Search Response:", data);
+                    if (data.code === 200 && data.data.length > 0) {
+                        displayMusicList(data.data);
+                    } else {
+                        alert('未找到歌曲');
+                    }
+                })
+                .catch(error => console.error('搜索歌曲时发生错误:', error));
+        }
+
+        function displayMusicList(songs) {
+            var list = document.getElementById('music-list');
+            list.innerHTML = '';
+            songs.forEach((song, index) => {
+                var item = document.createElement('li');
+                item.innerText = song.name;
+                item.onclick = function() { playSong(index + 1); };
+                list.appendChild(item);
+            });
+        }
+
+        function playSong(index) {
+            var query = document.getElementById('search-input').value;
+            var url = `https://api.linhun.vip/api/wyyyy?name=${encodeURIComponent(query)}&n=${index}&apiKey=${apiKey}`;
+            console.log("Play Song URL: " + url);
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Song info response:", data);
+                    if (data.mp3) {
+                        audio.src = data.mp3;
+                        audio.play();
+                        isPlaying = true;
+                        document.getElementById('album-cover').src = data.img;  // Set cover image
+                        document.getElementById('album-cover').style.animationPlayState = 'running';  // Start rotation
+                        currentLyrics = data.lyric.map((line) => ({text: line.name, time: parseLyricTime(line.time)}));
+                        updateProgress();
+                    } else {
+                        alert('No song or mp3 link found');
+                    }
+                })
+                .catch(error => console.error('Error getting song details:', error));
+        }
+
+        function updateProgress() {
+            audio.addEventListener('timeupdate', () => {
+                var progress = (audio.currentTime / audio.duration) * 100;
+                document.getElementById('progress').style.width = progress + '%';
+                updateLyrics(audio.currentTime);
+            });
+        }
+
+        function updateLyrics(currentTime) {
+            for (let i = 0; i < currentLyrics.length; i++) {
+                if (currentLyrics[i].time > currentTime) {
+                    currentIndex = i - 1;
+                    break;
+                }
+            }
+            document.getElementById('lyric-prev').innerText = (currentIndex > 0) ? currentLyrics[currentIndex - 1].text : "";
+            document.getElementById('lyric-current').innerText = currentLyrics[currentIndex].text;
+            document.getElementById('lyric-next').innerText = (currentIndex < currentLyrics.length - 1) ? currentLyrics[currentIndex + 1].text : "";
+        }
+
+        function parseLyricTime(timeStr) {
+            var parts = timeStr.split(':');
+            return parseInt(parts[0], 10) * 60 + parseFloat(parts[1]);
+        }
+
+        function setProgress(event) {
+            const width = event.currentTarget.clientWidth;
+            const clickX = event.offsetX;
+            const duration = audio.duration;
+            audio.currentTime = (clickX / width) * duration;
+        }
+
+        function togglePlay() {
+            if (audio.paused) {
+                audio.play();
+                isPlaying = true;
+                document.getElementById('album-cover').style.animationPlayState = 'running';  // Resume rotation
+            } else {
+                audio.pause();
+                isPlaying = false;
+                document.getElementById('album-cover').style.animationPlayState = 'paused';  // Pause rotation
+            }
+        }
+
+        function setVolume(value) {
+            audio.volume = value / 100;
+        }
+
+        function toggleLoop() {
+            audio.loop = !audio.loop;
+            document.getElementById('loopButton').innerText = audio.loop ? "循环: 开" : "循环: 关";
+        }
+    </script>
+</body>
+</html>
