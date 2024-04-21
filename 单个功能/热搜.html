@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sharon的热搜查询</title>
+    <style>
+        @font-face {
+            font-family: "ZCOOLKuaile";
+            src: url("../站酷仓耳渔阳体 W05.ttf") format("truetype");
+        }
+
+        @font-face {
+            font-family: "YSHAOSHENTI";
+            src: url("../YSHAOSHENTI-2.TTF") format("truetype");
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+            color: #fff;
+        }
+        select, button {
+            font-family: "ZCOOLKuaile";
+            padding: 8px 16px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #000000;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        button:hover, select:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.4);
+        }
+        .results {
+            font-family: "YSHAOSHENTI";
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+        .result-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 5px;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        .result-item:hover {
+            transform: scale(1.02);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        a {
+            color: #FFD700;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        h1{
+            font-size: 50px;
+            font-family: "ZCOOLKuaile";
+        }
+    </style>
+</head>
+<body>
+    <h1>热搜</h1>
+    <select id="sourceSelector">
+        <option value="zhihu">知乎</option>
+        <option value="weibo">微博</option>
+        <option value="baidu">百度</option>
+        <option value="history">历史上的今天</option>
+        <option value="bilihot">哔哩哔哩</option>
+        <option value="biliall">哔哩哔哩全站日榜</option>
+        <option value="sspai">少数派</option>
+    </select>
+    <button onclick="fetchHotSearch()">查询热搜</button>
+    <div id="results" class="results"></div>
+
+    <script>
+        function fetchHotSearch() {
+            const source = document.getElementById('sourceSelector').value;
+            const apiUrl = `https://api.linhun.vip/api/jhrsrb?type=${source}&apiKey=a9ee50b7679ef7f49a452b3c4c260ebf`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if(data.code == 200 && data.data) {
+                        displayResults(data, source);
+                    } else {
+                        document.getElementById('results').innerHTML = '<p>Error loading data.</p>';
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('results').innerHTML = '<p>Error loading data.</p>';
+                    console.error('Fetch error:', error);
+                });
+        }
+
+        function displayResults(data, source) {
+            const container = document.getElementById('results');
+            container.innerHTML = '';
+            data.data.forEach(item => {
+                const elem = document.createElement('div');
+                elem.className = 'result-item';
+                let content = `<strong>${item.title}</strong><br>
+                               <a href="${item.url}" target="_blank">查看详情</a><br>`;
+                
+                if (item.hot) content += `热度: ${item.hot}<br>`;
+                if (item.desc) content += `介绍: ${item.desc}<br>`;
+                if (item.other) content += `来自: ${item.other}<br>`;
+                if (item.pic) content += `<img src="${item.pic}" alt="Image"><br>`;
+                if (item.like_count) content += `点赞数: ${item.like_count}<br>`;
+                if (item.comment_count) content += `评论数: ${item.comment_count}<br>`;
+                if (item.createdAt) content += `发布日期: ${item.createdAt}<br>`;
+
+                elem.innerHTML = content;
+                container.appendChild(elem);
+            });
+        }
+    </script>
+</body>
+</html>
