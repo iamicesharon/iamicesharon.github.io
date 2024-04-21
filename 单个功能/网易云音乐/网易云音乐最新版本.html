@@ -24,11 +24,11 @@
             background: rgba(0, 0, 0, 0.3);
             width: 90%;
             max-width: 800px;
-            text-align: center; /* Ensures everything in the container is centered */
+            text-align: center;
         }
         .search-container {
             display: flex;
-            justify-content: center; /* Center the search bar and button */
+            justify-content: center;
             margin-bottom: 20px;
         }
         .search-container input, .search-container button {
@@ -68,7 +68,7 @@
             padding: 0;
             max-height: 150px;
             overflow-y: auto;
-            text-align: left; /* Text alignment for list items */
+            text-align: left;
         }
         #music-list li {
             cursor: pointer;
@@ -101,9 +101,9 @@
             border-radius: 50%;
             background-size: cover;
             background-position: center;
-            margin: 20px auto; /* This centers the album cover horizontally */
+            margin: 20px auto;
             animation: rotate 10s linear infinite;
-            animation-play-state: paused; /* Initial state is paused */
+            animation-play-state: paused;
         }
         @keyframes rotate {
             100% { transform: rotate(360deg); }
@@ -136,21 +136,26 @@
     <script>
         var audio = new Audio();
         var isPlaying = false;
+        var currentLyrics = [];
+        var currentIndex = 0;
         var apiKey = '18fbe652967ef8ddad9ea6007ca313ca';
 
         function searchMusic() {
             var query = document.getElementById('search-input').value;
             var url = `https://api.linhun.vip/api/wyyyy?name=${encodeURIComponent(query)}&apiKey=${apiKey}`;
+            console.log("Search URL: " + url);
+
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
+                    console.log("Search Response:", data);
                     if (data.code === 200 && data.data.length > 0) {
                         displayMusicList(data.data);
                     } else {
                         alert('未找到歌曲');
                     }
                 })
-                .catch(error => console.error('Error searching songs:', error));
+                .catch(error => console.error('搜索歌曲时发生错误:', error));
         }
 
         function displayMusicList(songs) {
@@ -159,7 +164,7 @@
             songs.forEach((song, index) => {
                 var item = document.createElement('li');
                 item.innerText = song.name;
-                item.onclick = () => playSong(index + 1);
+                item.onclick = function() { playSong(index + 1); };
                 list.appendChild(item);
             });
         }
@@ -167,15 +172,19 @@
         function playSong(index) {
             var query = document.getElementById('search-input').value;
             var url = `https://api.linhun.vip/api/wyyyy?name=${encodeURIComponent(query)}&n=${index}&apiKey=${apiKey}`;
+            console.log("Play Song URL: " + url);
+
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
+                    console.log("Song info response:", data);
                     if (data.mp3) {
                         audio.src = data.mp3;
                         audio.play();
                         isPlaying = true;
                         document.getElementById('album-cover').src = data.img;  // Set cover image
                         document.getElementById('album-cover').style.animationPlayState = 'running';  // Start rotation
+                        currentLyrics = data.lyric.map((line) => ({text: line.name, time: parseLyricTime(line.time)}));
                         updateProgress();
                     } else {
                         alert('No song or mp3 link found');
@@ -190,6 +199,23 @@
                 document.getElementById('progress').style.width = progress + '%';
                 updateLyrics(audio.currentTime);
             });
+        }
+
+        function updateLyrics(currentTime) {
+            for (let i = 0; i < currentLyrics.length; i++) {
+                if (currentLyrics[i].time > currentTime) {
+                    currentIndex = i - 1;
+                    break;
+                }
+            }
+            document.getElementById('lyric-prev').innerText = (currentIndex > 0) ? currentLyrics[currentIndex - 1].text : "";
+            document.getElementById('lyric-current').innerText = currentLyrics[currentIndex].text;
+            document.getElementById('lyric-next').innerText = (currentIndex < currentLyrics.length - 1) ? currentLyrics[currentIndex + 1].text : "";
+        }
+
+        function parseLyricTime(timeStr) {
+            var parts = timeStr.split(':');
+            return parseInt(parts[0], 10) * 60 + parseFloat(parts[1]);
         }
 
         function setProgress(event) {
