@@ -44,23 +44,23 @@
             border: none;
             border-radius: 5px;
             transition: all 0.3s ease; /* Transition effect for smoothness */
-            font-family: "ZCOOLKuaile";
+            font-family: "YSHAOSHENTI";
         }
-        .search-container input:focus, .search-container input:hover {
-            flex-grow: 1.1; /* Slightly increase size */
-            background-color: #ffffff30; /* Change color on hover/focus */
+        .search-container input:focus, .search-container input:hover, .search-container select:focus {
+            flex-grow: 1.1;
+            background-color: #ffffff30;
         }
         .search-container button {
             background: #784caf;
             color: white;
             cursor: pointer;
-            font-family: "ZCOOLKuaile";
+            font-family: "YSHAOSHENTI";
             transition: all 0.3s ease;
         }
         .search-container button:hover {
             background: #7c3673; /* Darken the button color on hover */
             transform: scale(1.1); /* Make the button larger */
-            font-family: "ZCOOLKuaile";
+            font-family: "YSHAOSHENTI";
         }
         .progress-container {
             width: 100%;
@@ -93,7 +93,7 @@
             border-bottom: 1px solid #ddd;
             background: rgba(255, 255, 255, 0.1);
             margin-top: 5px;
-            font-family: "ZCOOLKuaile";
+            font-family: "YSHAOSHENTI";
         }
         #music-list li:hover {
             background-color: rgba(255, 255, 255, 0.2);
@@ -118,7 +118,7 @@
         }
         .lyrics-container {
             margin-top: 20px;
-            font-family: "ZCOOLKuaile";
+            font-family: "YSHAOSHENTI";
         }
         #album-cover {
             width: 120px;
@@ -137,15 +137,30 @@
             font-family: "ZCOOLKuaile";
             font-size: 50px;
         }
+        .search-container input, .search-container button, .search-container select {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-family: "YSHAOSHENTI";  /* Apply YSHAOSHENTI to all input, button, and select */
+        }
+        p{
+            font-family: "YSHAOSHENTI";
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Sharon音乐播放器</h1>
+        <p>请大家到正式音乐网站上听音乐歌曲，此处仅供试听</p>
         <img id="album-cover" src="" alt="您的歌曲封面将在这里显示">
         <div class="search-container">
-            <input type="text" id="search-input" placeholder="输入歌曲名称搜索">
+            <input type="text" id="search-input" placeholder="使用网易云则输入歌曲名称搜索，使用聚合则输入链接">
             <button onclick="searchMusic()">搜索</button>
+            <select id="api-selector" onchange="changeAPI()">
+                <option value="netease">网易云音乐</option>
+                <option value="qqyy">QQ音乐</option>
+            </select>
         </div>
         <div class="control">
             <button onclick="togglePlay()">播放/暂停</button>
@@ -169,11 +184,19 @@
         var isPlaying = false;
         var currentLyrics = [];
         var currentIndex = 0;
-        var apiKey = '18fbe652967ef8ddad9ea6007ca313ca';
+        var apiKeyNetease = '18fbe652967ef8ddad9ea6007ca313ca';  // 网易云音乐API Key
+        var apiKeyQQ = '04c216c4b4fcb5c49e0befc75f2f460a';  // QQ音乐API Key
+        var currentAPI = 'netease';  // 默认使用网易云音乐API
+
+        function changeAPI() {
+            currentAPI = document.getElementById('api-selector').value;
+        }
 
         function searchMusic() {
             var query = document.getElementById('search-input').value;
-            var url = `https://api.linhun.vip/api/wyyyy?name=${encodeURIComponent(query)}&apiKey=${apiKey}`;
+            var url = (currentAPI === 'netease') ?
+                `https://api.linhun.vip/api/wyyyy?name=${encodeURIComponent(query)}&apiKey=${apiKeyNetease}` :
+                `https://api.linhun.vip/api/qqyy?name=${encodeURIComponent(query)}&apiKey=${apiKeyQQ}`;
             console.log("Search URL: " + url);
 
             fetch(url)
@@ -186,7 +209,10 @@
                         alert('未找到歌曲');
                     }
                 })
-                .catch(error => console.error('搜索歌曲时发生错误:', error));
+                .catch(error => {
+                    console.error('搜索歌曲时发生错误:', error);
+                    alert('搜索歌曲时发生错误, 请检查控制台');
+                });
         }
 
         function displayMusicList(songs) {
@@ -194,34 +220,57 @@
             list.innerHTML = '';
             songs.forEach((song, index) => {
                 var item = document.createElement('li');
-                item.innerText = song.name;
-                item.onclick = function() { playSong(index + 1); };
+                var songTitle = song.name || song.title; // 兼容不同API的歌曲名称字段
+                var author = song.author || ''; // 兼容不同API的作者字段，并处理可能的未定义情况
+                if (currentAPI === 'qqyy' && author) {
+                    item.innerText = `${songTitle} -- ${author}`; // 格式：歌曲名称 -- 作者，仅QQ音乐API使用
+                } else {
+                    item.innerText = songTitle; // 网易云音乐仍然使用原格式
+                }
+                item.onclick = function() { playSong(index); };
                 list.appendChild(item);
             });
         }
 
         function playSong(index) {
-            var query = document.getElementById('search-input').value;
-            var url = `https://api.linhun.vip/api/wyyyy?name=${encodeURIComponent(query)}&n=${index}&apiKey=${apiKey}`;
+            var songs = document.querySelectorAll('#music-list li');
+            var query = songs[index].innerText;
+            var url = (currentAPI === 'netease') ?
+                `https://api.linhun.vip/api/wyyyy?name=${encodeURIComponent(query)}&n=${index + 1}&apiKey=${apiKeyNetease}` :
+                `https://api.linhun.vip/api/qqyy?name=${encodeURIComponent(query)}&n=${index + 1}&apiKey=${apiKeyQQ}`;
             console.log("Play Song URL: " + url);
 
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
                     console.log("Song info response:", data);
-                    if (data.mp3) {
+                    if ((currentAPI === 'netease' && data.mp3) || (currentAPI === 'qqyy' && data.mp3)) {
                         audio.src = data.mp3;
                         audio.play();
                         isPlaying = true;
                         document.getElementById('album-cover').src = data.img;  // Set cover image
                         document.getElementById('album-cover').style.animationPlayState = 'running';  // Start rotation
-                        currentLyrics = data.lyric.map((line) => ({text: line.name, time: parseLyricTime(line.time)}));
+                        if (currentAPI === 'qqyy') {
+                            currentLyrics = data.lyric.map(line => ({
+                                text: line.name,
+                                time: parseLyricTime(line.time)
+                            }));
+                        } else {
+                            currentLyrics = data.lyric.map(line => ({
+                                text: line.name,
+                                time: parseLyricTime(line.time)
+                            }));
+                        }
                         updateProgress();
+                        updateLyrics(0);  // Initial call to update lyrics display
                     } else {
                         alert('No song or mp3 link found');
                     }
                 })
-                .catch(error => console.error('Error getting song details:', error));
+                .catch(error => {
+                    console.error('Error getting song details:', error);
+                    alert('Error getting song details, please check the console');
+                });
         }
 
         function updateProgress() {
@@ -233,20 +282,26 @@
         }
 
         function updateLyrics(currentTime) {
+            let current = document.getElementById('lyric-current');
+            let prev = document.getElementById('lyric-prev');
+            let next = document.getElementById('lyric-next');
+
             for (let i = 0; i < currentLyrics.length; i++) {
                 if (currentLyrics[i].time > currentTime) {
-                    currentIndex = i - 1;
+                    current.innerText = currentLyrics[i-1] ? currentLyrics[i-1].text : "";
+                    prev.innerText = currentLyrics[i-2] ? currentLyrics[i-2].text : "";
+                    next.innerText = currentLyrics[i] ? currentLyrics[i].text : "";
                     break;
                 }
             }
-            document.getElementById('lyric-prev').innerText = (currentIndex > 0) ? currentLyrics[currentIndex - 1].text : "";
-            document.getElementById('lyric-current').innerText = currentLyrics[currentIndex].text;
-            document.getElementById('lyric-next').innerText = (currentIndex < currentLyrics.length - 1) ? currentLyrics[currentIndex + 1].text : "";
         }
 
         function parseLyricTime(timeStr) {
-            var parts = timeStr.split(':');
-            return parseInt(parts[0], 10) * 60 + parseFloat(parts[1]);
+            if (timeStr.includes(':')) {
+                let parts = timeStr.split(':');
+                return parseInt(parts[0], 10) * 60 + parseFloat(parts[1]);
+            }
+            return 0;
         }
 
         function setProgress(event) {
