@@ -176,11 +176,20 @@
                         isPlaying = true;
                         document.getElementById('album-cover').src = data.img;  // Set cover image
                         document.getElementById('album-cover').style.animationPlayState = 'running';  // Start rotation
+                        updateProgress();
                     } else {
                         alert('No song or mp3 link found');
                     }
                 })
                 .catch(error => console.error('Error getting song details:', error));
+        }
+
+        function updateProgress() {
+            audio.addEventListener('timeupdate', () => {
+                var progress = (audio.currentTime / audio.duration) * 100;
+                document.getElementById('progress').style.width = progress + '%';
+                updateLyrics(audio.currentTime);
+            });
         }
 
         function setProgress(event) {
