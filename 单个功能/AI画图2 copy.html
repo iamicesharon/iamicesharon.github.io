@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .fade-in {
+            animation: fadeIn 1s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        #promptInput {
+            transition: width 0.3s ease-in-out;
+            width: 100%;
+        }
+        button {
+            transition: all 0.3s ease-in-out;
+            transform: scale(1);
+            border-radius: 12px;
+        }
+        button:hover {
+            transform: scale(1.05);
+            background-color: #3182ce;
+        }
+        .fade-in {
+            animation: fadeIn 1s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        #promptInput:focus, #sizeInput:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px #bee3f8;
+        }
+        button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px #bee3f8;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes scaleIn {
+            from { transform: scale(0.95); }
+            to { transform: scale(1); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        .scale-in {
+            animation: scaleIn 0.3s ease-out forwards;
+        }
+        #promptInput:focus, #sizeInput:focus, button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px #bee3f8;
+        }
+        button {
+            transition: background-color 0.3s ease-in-out, transform 0.2s ease;
+            transform: scale(1);
+            border-radius: 12px;
+        }
+        button:hover {
+            transform: scale(1.05);
+            background-color: #3182ce;
+        }
+        .card {
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-200 to-indigo-400 min-h-screen flex items-center justify-center p-5">
+    <div id="passwordPrompt" class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-sm mx-auto">
+        <h2 class="text-xl font-bold mb-4 text-center">请输入密码</h2>
+        <input type="password" id="passwordInput" placeholder="密码" class="border p-3 rounded w-full focus:border-indigo-300 transition-all mb-4">
+        <button onclick="checkPassword()" class="bg-blue-500 text-white font-bold py-3 px-6 rounded w-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 transition-all">
+            提交
+        </button>
+    </div>
+    <div id="mainContent" class="card bg-white p-8 rounded-lg shadow-2xl w-full max-w-2xl mx-auto hidden">
+        <div class="card bg-white p-8 rounded-lg shadow-2xl w-full max-w-2xl mx-auto">
+            <h1 class="text-3xl font-bold mb-6 text-center text-gray-800 scale-in">AI画图</h1>
+            <p>有可能出bug，目前测试晚上会有bug，无法返回结果</p>
+            <form id="imageForm" class="space-y-4">
+                <input type="text" id="promptInput" placeholder="Enter a prompt for the AI..." class="border p-3 rounded w-full focus:border-indigo-300 transition-all">
+                <select id="sizeInput" class="border p-3 rounded w-full focus:border-indigo-300 transition-all">
+                    <option value="1024x1024">1024x1024</option>
+                    <option value="512x512">512x512</option>
+                    <option value="256x256">256x256</option>
+                </select>
+                <input type="range" id="numImages" min="1" max="4" value="1" class="w-full">
+                <label for="numImages" id="numLabel" class="block text-sm font-medium text-gray-700">Number of Images: 1</label>
+                <button type="submit" class="bg-blue-500 text-white font-bold py-3 px-6 rounded w-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 transition-all">
+                    开始绘制
+                </button>
+            </form>
+            <div id="imageDisplay" class="mt-6 space-y-4">
+                <!-- Image will be displayed here -->
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('imageForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const prompt = document.getElementById('promptInput').value;
+            const size = document.getElementById('sizeInput').value;
+            const numImages = document.getElementById('numImages').value;
+            const imageDisplay = document.getElementById('imageDisplay');
+
+            // Display loading message
+            imageDisplay.innerHTML = '<p class="fade-in">飞速加载中，这可能需要1分钟...</p>';
+
+            const apiUrl = `https://api-collect.idcdun.com/v1/images/generations?prompt=${encodeURIComponent(prompt)}&n=${numImages}&model=dall-e-3&size=${size}`;
+            
+            fetch(apiUrl, {
+                method: 'GET' // Using GET as specified
+            })
+            .then(response => response.json())
+            .then(data => {
+                imageDisplay.innerHTML = ''; // Clear loading message
+                if (data.data && data.data.length > 0) {
+                    data.data.forEach(imgData => {
+                        const imageUrl = imgData.url;
+                        const imageContainer = document.createElement('div');
+                        imageContainer.className = 'fade-in flex items-center space-x-4 mb-4';
+                        const image = new Image();
+                        image.src = imageUrl;
+                        image.alt = 'Generated Image';
+                        image.style.maxWidth = '100%';
+                        const downloadButton = document.createElement('button');
+                        downloadButton.textContent = 'Download';
+                        downloadButton.className = 'bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded';
+                        downloadButton.onclick = function() { window.open(imageUrl); };
+                        imageContainer.appendChild(image);
+                        imageContainer.appendChild(downloadButton);
+                        imageDisplay.appendChild(imageContainer);
+                    });
+                } else {
+                    imageDisplay.innerHTML = '<p class="fade-in">No images returned from the API.</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                imageDisplay.innerHTML = '<p class="fade-in">Failed to fetch image. Check console for details.</p>';
+            });
+        });
+
+        document.getElementById('numImages').addEventListener('input', function() {
+            document.getElementById('numLabel').textContent = 'Number of Images: ' + this.value;
+        });
+
+        function checkPassword() {
+            const password = document.getElementById('passwordInput').value;
+            const correctPassword = 'Sharonissmart!'; // 这里设置您的密码
+            if (password === correctPassword) {
+                document.getElementById('passwordPrompt').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+            } else {
+                alert('密码错误，请重试！');
+            }
+        }
+    </script>
+</body>
+</html>
