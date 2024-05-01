@@ -281,6 +281,7 @@
         <a href="javascript:void(0);" onclick="switchTab('home')">主页</a>
         <a href="javascript:void(0);" onclick="switchTab('about')">关于我</a>
         <a href="javascript:void(0);" onclick="switchTab('projects')">奇奇怪怪的工具</a>
+        <a href="javascript:void(0);" onclick="switchTab('images&files')">图像&文件处理</a>
         <a href="javascript:void(0);" onclick="switchTab('contact')">联系方式</a>
         <select id="theme-selector" class="theme-button" onchange="changeTheme(this.value)">
             <option value="blue-purple">蓝色 紫色</option>
@@ -321,40 +322,11 @@
                 <a href="单个功能/网易云音乐/音乐播放器最新版本.html">点我!</a>
             </div>
             <div class="box">
-                <h2>图片类型转换</h2>
-                <p>比较快速，一般一秒内可完成，可选多张图片</p>
-                <a href="单个功能/图片类型转换.html">点我!</a>
-            </div>
-            <div class="box">
-                <h2>AI画图，有可能出bug</h2>
-                <p>跳转吧!</p>
-                <a href="单个功能/AI画图2 copy.html">点我!</a>
-            </div>
-            <div class="box">
-                <h2>搜图</h2>
-                <p>搜图！</p>
-                <a href="单个功能/搜图/搜图2.html">点我!</a>
-            </div>
-            <div class="box">
-                <h2>AI抠图</h2>
-                <p>选择图片进行AI抠图处理</p>
-                <input type="file" id="mattingInput" accept="image/png, image/jpeg">
-                <button id="mattingButton" onclick="fetchMattingImage()">上传并处理图片</button>
-                <div id="mattingResult"></div>
-            </div>
-            <div class="box">
                 <h2>字典查询工具</h2>
                 <p>输入你想查询的汉字，获取其详细解释。</p>
                 <input type="text" id="dictInput" placeholder="输入汉字">
                 <button onclick="fetchDictResult()">查询</button>
                 <div id="dictResult"></div>
-            </div>
-            <div class="box">
-                <h2>图片文字识别</h2>
-                <p>上传图片进行文字识别</p>
-                <input type="file" id="ocrInput" accept="image/*">
-                <button onclick="fetchOcrResult()">识别文字</button>
-                <div id="ocrResult"></div>
             </div>
             <div class="box">
                 <h2>天气查询</h2>
@@ -403,12 +375,6 @@
                 <div id="calendarResult"></div>
             </div>
             <div class="box">
-                <h2>图像识别</h2>
-                <input type="file" id="imageInput" accept="image/*">
-                <button onclick="fetchImageRecognition()">识别图像</button>
-                <div id="imageRecognitionResult"></div>
-            </div>
-            <div class="box">
                 <h2>百度题库查询</h2>
                 <input type="text" id="questionInput" placeholder="输入问题关键词">
                 <button onclick="fetchQuestionAnswer()">查询答案</button>
@@ -433,13 +399,6 @@
                 <input type="date" id="date-input">
                 <button onclick="fetchCalendarInfo()">查询日期</button>
                 <div id="calendar-display-area"></div>
-            </div>
-            <div class="box">
-                <h2>AI画图</h2>
-                <p>亿点点慢，耐心一点</p>
-                <input type="text" id="drawingDescription" placeholder="英文的绘画描述" />
-                <button onclick="generateDrawing()">生成图像</button>
-                <img id="drawingResult" src="" alt="AI图片将在这里显示" style="max-width: 100%;"/>
             </div>
             <div class="box">
                 <h2>火车查询</h2>
@@ -475,9 +434,55 @@
                 <h2>各大平台热搜榜</h2>
                 <a href="单个功能/热搜.html">点我!</a>
             </div>
-            
-            
-        </div>        
+        </div>     
+        <div id="images&files" style="display:none;">
+            <div class="box">
+                <h2>ZIP压缩&解压缩</h2>
+                <a href="单个功能/解压缩.html">点我!</a>
+            </div>
+            <div class="box">
+                <h2>图片类型转换</h2>
+                <p>比较快速，一般一秒内可完成，可选多张图片</p>
+                <a href="单个功能/图片类型转换.html">点我!</a>
+            </div>
+            <div class="box">
+                <h2>AI画图，有可能出bug</h2>
+                <p>跳转吧!</p>
+                <a href="单个功能/AI画图2 copy.html">点我!</a>
+            </div>
+            <div class="box">
+                <h2>图片文字识别</h2>
+                <p>上传图片进行文字识别</p>
+                <input type="file" id="ocrInput" accept="image/*">
+                <button onclick="fetchOcrResult()">识别文字</button>
+                <div id="ocrResult"></div>
+            </div>
+            <div class="box">
+                <h2>图像识别</h2>
+                <input type="file" id="imageInput" accept="image/*">
+                <button onclick="fetchImageRecognition()">识别图像</button>
+                <div id="imageRecognitionResult"></div>
+            </div>
+            <div class="box">
+                <h2>搜图</h2>
+                <p>搜图！</p>
+                <a href="单个功能/搜图/搜图2.html">点我!</a>
+            </div>
+            <div class="box">
+                <h2>AI抠图</h2>
+                <p>选择图片进行AI抠图处理</p>
+                <input type="file" id="mattingInput" accept="image/png, image/jpeg">
+                <button id="mattingButton" onclick="fetchMattingImage()">上传并处理图片</button>
+                <div id="mattingResult"></div>
+            </div>
+            <div class="box">
+                <h2>AI画图2</h2>
+                <p>亿点点慢，耐心一点</p>
+                <input type="text" id="drawingDescription" placeholder="英文的绘画描述" />
+                <button onclick="generateDrawing()">生成图像</button>
+                <img id="drawingResult" src="" alt="AI图片将在这里显示" style="max-width: 100%;"/>
+            </div>
+        </div>   
         <div id="contact" style="display:none;">
             <div class="box">Email:
                 <a href="mailto:iamicesharon@163.com">iamicesharon@163.com</a>
