@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>搜图</title>
+    <style>
+        @font-face {
+            font-family: "ZCOOLKuaile";
+            src: url("../../站酷仓耳渔阳体 W05.ttf") format("truetype");
+        }
+
+        @font-face {
+            font-family: "YSHAOSHENTI";
+            src: url("../../YSHAOSHENTI-2.TTF") format("truetype");
+        }
+
+        body {
+            font-family: "ZCOOLKuaile", sans-serif;
+            background: linear-gradient(to right, #6a11cb, #2575fc); /* Gradient background */
+            margin: 0;
+            padding: 0;
+            color: #fff;
+        }
+
+        .search-container {
+            width: 60%;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8); /* Transparent background */
+            border-radius: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s; /* Animation for the container */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        h1 {
+            text-align: center;
+            font-family: "ZCOOLKuaile", sans-serif;
+            color: #3163F3;
+        }
+
+        .form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        #results {
+            text-align: center;
+        }
+
+        #results img {
+            margin-bottom: 10px;
+            border-radius: 10px; /* Rounded corners for images */
+            animation: fadeInImage 1s; /* Animation for images */
+        }
+
+        @keyframes fadeInImage {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        a {
+            font-family: "YSHAOSHENTI";
+            color: #0073e6;
+            text-decoration: none; /* No underline */
+        }
+
+        #loading {
+            display: none;
+            color: #ff4500;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        button {
+            cursor: pointer;
+            background: #0073e6;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        input, select {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        p{
+            font-family: "YSHAOSHENTI";
+        }
+    </style>
+</head>
+<body>
+    <div class="search-container">
+        <h1>搜图</h1>
+        
+        <div class="form">
+            <select id="platform">
+                <option value="baidu">百度搜图</option>
+                <option for "360">360搜图</option>
+                <option value="sogo">搜狗搜图</option>
+            </select>
+
+            <input type="text" id="query" placeholder="输入搜索内容">
+
+            <button onclick="searchImage()">搜索</button>
+        </div>
+
+        <div id="loading">加载中...</div>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function searchImage() {
+            const platform = document.getElementById("platform").value;
+            const query = document.getElementById("query").value;
+
+            let apiUrl;
+
+            if (platform === "baidu") {
+                apiUrl = `https://api.52vmy.cn/api/img/baidu?msg=${query}`;
+            } else if (platform === "360") {
+                apiUrl = `https://api.52vmy.cn/api/img/360?msg=${query}`;
+            } else if (platform === "sogo") {
+                apiUrl = `https://api.52vmy.cn/api/img/sogo?msg=${query}`;
+            }
+
+            const loadingIndicator = document.getElementById("loading");
+            const resultsContainer = document.getElementById("results");
+
+            loadingIndicator.style.display = "block";
+            resultsContainer.innerHTML = "";
+
+            fetch(`https://corsproxy.io/?${encodeURIComponent(apiUrl)}`)
+                .then(response => response.json())
+                .then(data => {
+                    loadingIndicator.style.display = "none";
+
+                    if (data.code === 200) {
+                        const imgData = data.data;
+
+                        resultsContainer.innerHTML = `
+                            <img src="${imgData.url}" width="${imgData.width}" height="${imgData.height}" />
+                            <p>大小: ${imgData.width}x${imgData.height}</p>
+                            <p>URL: <a href="${imgData.url}" target="_blank">${imgData.url}</a></p>
+                        `;
+                    } else {
+                        resultsContainer.innerHTML = "<p>Error: Unable to retrieve image.</p>";
+                    }
+                })
+                .catch(error => {
+                    loadingIndicator.style.display = "none";
+                    resultsContainer.innerHTML = `<p>Error fetching data: ${error.message}</p>`;
+                    console.error("Error fetching data: ", error);
+                });
+        }
+    </script>
+</body>
+</html>

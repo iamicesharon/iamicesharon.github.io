@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>搜图</title>
+    <style>
+        @font-face {
+            font-family: "ZCOOLKuaile";
+            src: url("../../站酷仓耳渔阳体 W05.ttf") format("truetype");
+        }
+
+        @font-face {
+            font-family: "YSHAOSHENTI";
+            src: url("../../YSHAOSHENTI-2.TTF") format("truetype");
+        }
+        body {
+            font-family: "YSHAOSHENTI";
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            margin: 0;
+            padding: 0;
+        }
+
+        .search-container {
+            width: 60%;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        h1 {
+            text-align: center;
+            font-family: "ZCOOLKuaile";
+            font-size: 50px;
+        }
+
+        .form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input, select {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-family: "YSHAOSHENTI";  /* Apply YSHAOSHENTI to all input, button, and select */
+        }
+
+        input:focus,input:hover {
+            flex-grow: 1.1;
+            background-color: #ffffff30;
+        }
+
+        button {
+            font-family: "YSHAOSHENTI";
+            cursor: pointer;
+            background: #0073e6;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.3s; /* Transition for color and scale */
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: scale(1.1); /* Enlarge button on hover */
+        }
+
+        #results-top, #results-bottom {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .image-card {
+            overflow: hidden;
+            background-color: rgba(240, 240, 240, 0.7);
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, background-color 0.2s; /* Transitions for hover effects */
+        }
+
+        .image-card:hover {
+            transform: scale(1.05);
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .image-card img {
+            width: 100%; /* Full width, respecting aspect ratio */
+            height: auto;
+            border-radius: 5px;
+            animation: fadeInImage 1s;
+        }
+
+        @keyframes fadeInImage {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        a {
+            color: #0073e6;
+            text-decoration: none;
+        }
+
+        #loading {
+            display: none;
+            color: #ff4500;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .pagination button {
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="search-container">
+        <h1>搜图</h1>
+
+        <div class="form">
+            <input type="text" id="query" placeholder="请输入搜索内容，不要有空格">
+            <button onclick="searchImage()">搜索</button>
+        </div>
+
+        <div id="loading">加载中...</div>
+        <div id="results-top"></div>
+        <div id="results-bottom"></div>
+
+        <div class="pagination">
+            <button id="prev" onclick="changePage(-1)">上一页</button>
+            <button id="next" onclick="changePage(1)">下一页</button>
+        </div>
+    </div>
+
+    <script>
+        let page = 1;
+
+        function searchImage() {
+            const query = document.getElementById("query").value;
+            const apiUrl = `https://zj.v.api.aa1.cn/api/so-baidu-img/?msg=${query}&page=${page}`;
+
+            const loadingIndicator = document.getElementById("loading");
+            const resultsTop = document.getElementById("results-top");
+            const resultsBottom = document.getElementById("results-bottom");
+
+            loadingIndicator.style.display = "block";
+            resultsTop.innerHTML = "";
+            resultsBottom.innerHTML = "";
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    loadingIndicator.style.display = "none";
+
+                    if (data.code === "200") {
+                        const images = data.data;
+                        const mid = Math.floor(images.length / 2); // Split point
+
+                        resultsTop.innerHTML = images.slice(0, mid).map(img => `
+                            <div class="image-card">
+                                <a href="${img.hoverUrl}" target="_blank">
+                                    <img src="${img.thumbnailUrl}" />
+                                </a>
+                                <p>${img.oriTitle}</p>
+                                <p>大小:${img.width}x${img.height}</p>
+                            </div>
+                        `).join("");
+
+                        resultsBottom.innerHTML = images.slice(mid).map(img => `
+                            <div class="image-card">
+                                <a href="${img.hoverUrl}" target="_blank">
+                                    <img src="${img.thumbnailUrl}" />
+                                </a>
+                                <p>${img.oriTitle}</p>
+                                <p>大小:${img.width}x${img.height}</p>
+                            </div>
+                        `).join("");
+                    } else {
+                        resultsTop.innerHTML = "<p>无法检索到图像。</p>";
+                        resultsBottom.innerHTML = "<p>无法检索到图像。</p>";
+                    }
+                })
+                .catch(error => {
+                    loadingIndicator.style.display = "none";
+                    resultsTop.innerHTML = `<p>获取数据出错：${error.message}</p>`;
+                    resultsBottom.innerHTML = `<p>获取数据出错：${error.message}</p>`;
+                    console.error("Error fetching data: ", error);
+                });
+        }
+
+        function changePage(delta) {
+            page += delta;
+            if (page < 1) page = 1;
+            searchImage();
+        }
+    </script>
+</body>
+</html>
