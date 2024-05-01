@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>图片类型转换</title>
-    <meta name="viewport" content="width=width=device, initial-scale=1, minimum-scale=1, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, user-scalable=yes">
     <meta name="keywords" content="Image Conversion, JPG, PNG, BMP, GIF, WEBP, ICO">
     <meta name="description" content="Convert image formats, supporting JPG, PNG, BMP, GIF, WEBP, ICO">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -35,7 +35,7 @@
             margin-right: 10px;
         }
 
-        #download, #select-all, #download-selected, #deselect-all {
+        #download, #select-all, #download-selected, #deselect-all, #download-zip {
             display: none;
         }
 
@@ -132,7 +132,8 @@
     <div class="form-group buttons-row">
         <button id="select-all" type="button" class="btn btn-lg btn-secondary" onclick="selectAllThumbnails()">全选</button>
         <button id="deselect-all" type="button" class="btn btn-lg btn-danger" onclick="deselectAllThumbnails()">取消全选</button>
-        <button id="download-selected" type="button" class="btn btn-lg btn-success" onclick="downloadSelected()">下载选中的</button>
+        <button id="download-selected" type="button" class="btn btn-lg btn-success" onclick="downloadSelected()">直接下载图片</button>
+        <button id="download-zip" type="button" class="btn btn-lg btn-info" onclick="downloadZip()">下载ZIP文件</button>
     </div>
 
     <div class="form-group">
@@ -163,7 +164,6 @@
         }
 
         const format = document.querySelector('input[name="image_type"]:checked').value;
-        const zip = new JSZip(); // Initialize ZIP archive
         const thumbnailsContainer = document.getElementById("thumbnails");
         thumbnailsContainer.innerHTML = ""; // Clear previous thumbnails
         thumbnails = []; // Clear previous thumbnail information
@@ -173,6 +173,7 @@
         document.getElementById("select-all").style.display = "none";
         document.getElementById("deselect-all").style.display = "none";
         document.getElementById("download-selected").style.display = "none";
+        document.getElementById("download-zip").style.display = "none";
 
         filesToConvert.forEach((file, idx) => {
             const reader = new FileReader();
@@ -197,6 +198,7 @@
                     document.getElementById("select-all").style.display = "block";
                     document.getElementById("deselect-all").style.display = "block";
                     document.getElementById("download-selected").style.display = "block";
+                    document.getElementById("download-zip").style.display = "block";
                 }
             };
             reader.readAsArrayBuffer(file);
@@ -217,27 +219,34 @@
 
     function downloadSelected() {
         const selectedImages = document.querySelectorAll('input[name="image-select"]:checked');
-        if (selectedImages.length === 1) { // Direct download for single image
-            const selectedFile = thumbnails.find(thumbnail => thumbnail.filename === selectedImages[0].value);
-            const downloadLink = document.getElementById("download");
-            downloadLink.href = URL.createObjectURL(selectedFile.blob);
-            downloadLink.innerText = ` ${selectedFile.filename}`;
-            downloadLink.style.display = "block";
-        } else { // ZIP for multiple images
-            const zip = new JSZip(); // New ZIP for selected files
-
-            selectedImages.forEach(checkbox => {
-                const selectedFile = thumbnails.find(thumbnail => thumbnail.filename === checkbox.value);
-                zip.file(selectedFile.filename, selectedFile.blob); // Add to ZIP
-            });
-
-            zip.generateAsync({ type: "blob" }).then(blob => {
-                const downloadLink = document.getElementById("download");
-                downloadLink.href = URL.createObjectURL(blob);
-                downloadLink.innerText = "下载ZIP文件";
-                downloadLink.style.display = "block";
-            });
+        if (!selectedImages.length) {
+            alert("请至少选择一张图片！");
+            return;
         }
+
+        selectedImages.forEach(checkbox => {
+            const selectedFile = thumbnails.find(thumbnail => thumbnail.filename === checkbox.value);
+            saveAs(selectedFile.blob, selectedFile.filename); // Use FileSaver.js to save the image
+        });
+    }
+
+    function downloadZip() {
+        const selectedImages = document.querySelectorAll('input[name="image-select"]:checked');
+        if (!selectedImages.length) {
+            alert("请至少选择一张图片！");
+            return;
+        }
+
+        const zip = new JSZip(); // New ZIP for selected files
+
+        selectedImages.forEach(checkbox => {
+            const selectedFile = thumbnails.find(thumbnail => thumbnail.filename === checkbox.value);
+            zip.file(selectedFile.filename, selectedFile.blob); // Add to ZIP
+        });
+
+        zip.generateAsync({ type: "blob" }).then(blob => {
+            saveAs(blob, "selected_images.zip"); // Use FileSaver.js to save the ZIP file
+        });
     }
 
     function toggleSelection(image) {
