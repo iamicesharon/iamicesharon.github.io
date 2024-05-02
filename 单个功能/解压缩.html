@@ -80,11 +80,11 @@
 <div class="form-horizontal">
     <div class="form-group">
         <div class="drop-zone" id="drop-zone" ondragover="event.preventDefault()" ondrop="handleDrop(event)">
-            把图片拖到这里  或  点击来选择图片
+            把文件拖到这里  或  点击来选择文件
             <input id="file-upload" type="file" class="file" accept=".zip, .txt, .png, .jpeg, .jpg" multiple style="display:none">
         </div>
     </div>
-
+    <p>要解压文件时，请只上传一个ZIP文件</p>
     <div class="form-group">
         <button id="unzip-files" type="button" class="btn btn-lg btn-secondary" onclick="unzipFiles()">解压缩</button>
         <button id="compress-files" type="button" class="btn btn-lg btn-primary" onclick="compressFiles()">压缩成ZIP</button>
