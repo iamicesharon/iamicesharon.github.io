@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Voice Synthesis</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.6.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ionicons@5.5.2/dist/css/ionicons.min.css">
+    <style>
+        body {
+            background-image: linear-gradient(to right, #6a11cb, #2575fc);
+            font-family: Arial, sans-serif;
+            color: #fff;
+        }
+
+        .card {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            transition: box-shadow 0.3s;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-control {
+            border: 1px solid #ddd;
+            background-color: #fff;
+            color: #000;
+            border-radius: 10px;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: #6a11cb;
+            box-shadow: 0 0 5px rgba(106, 17, 203, 0.2);
+            transform: scale(1.05);
+        }
+
+        .alert {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 8px;
+        }
+
+        .section-frame {
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background-color: #6a11cb;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #2575fc;
+            transform: scale(1.05);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .nk-footer {
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        .btn-outline-light {
+            border-radius: 8px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .btn-outline-light:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            color: #000;
+        }
+        body {
+            background-image: linear-gradient(to right, #6a11cb, #2575fc);
+            font-family: Arial, sans-serif;
+            color: #fff;
+        }
+
+        .card {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            transition: box-shadow 0.3s;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-control {
+            border: 1px solid #ddd;
+            background-color: #fff;
+            color: #000;
+            border-radius: 10px;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: #6a11cb;
+            box-shadow: 0 0 5px rgba(106, 17, 203, 0.2);
+            transform: scale(1.05);
+        }
+
+        .alert {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 8px;
+        }
+
+        .section-frame {
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background-color: #6a11cb;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #2575fc;
+            transform: scale(1.05);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .nk-footer {
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        .btn-outline-light {
+            border-radius: 8px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .btn-outline-light:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            color: #000;
+        }
+        h1{
+            font-size: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-xl mt-5" id="app">
+        <div class="col-sm-12 col-md-10 col-xl-8 center-block">
+            <div class="card">
+                <div class="card-inner mt-3">
+                    <h1 class="font-weight-bold">在线语音合成</h1>
+                    <div class="alert alert-info"><em class="ion-md-information-circle"></em> 本地生成语音哦，音色根据浏览器决定 </div>
+
+                    <div class="section-frame">
+                        <div class="form-group">
+                            <label for="input">合成文本</label>
+                            <textarea class="form-control" v-model="set.input" rows="5"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>音色</label>
+                            <select class="form-control" v-model="set.voice">
+                                <option v-for="item in set.voices">{{item.name}}</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>语速</label><span class="float-right">{{set.rate}}</span>
+                            <input type="range" min="0" max="3" step="0.1" v-model="set.rate" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label>音高</label><span class="float-right">{{set.pitch}}</span>
+                            <input type="range" min="0" max="3" step="0.1" v-model="set.pitch" class="form-control">
+                        </div>
+
+                        <div class="row pt-2">
+                            <div class="col-4">
+                                <button class="btn btn-outline-primary btn-block" @click="play"><em class="ion-ios-play"></em> 播放</button>
+                            </div>
+                            <div class="col-4">
+                                <button class="btn btn-outline-primary btn-block" @click="cancel"><em la-md-stop></em> 停止</button>
+                            </div>
+                            <div class="col-4">
+                                <button class="btn btn-outline-primary btn-block" @click="reset"><em la-md-refresh></em> 清空</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                set: {
+                    input: '欢迎来到 Sharon 的网站！',
+                    rate: 1,
+                    pitch: 1,
+                    voice: 1,
+                    voices: [],
+                },
+                synth: null,
+            },
+            created() {
+                if (!window.speechSynthesis) {
+                    alert("该浏览器不支持语音生成，请更换浏览器后重试");
+                    return;
+                }
+
+                this.synth = window.speechSynthesis;
+                window.speechSynthesis.onvoiceschanged = () => {
+                    this.set.voices = this.synth.getVoices();
+                    this.set.voice = this.set.voices[0].name;
+                };
+            },
+            methods: {
+                play() {
+                    const utterThis = new SpeechSynthesisUtterance(this.set.input);
+                    this.set.voices.forEach(value => {
+                        if (this.set.voice === value.name) {
+                            utterThis.voice = value;
+                        }
+                    });
+                    utterThis.pitch = this.set.pitch;
+                    utterThis.rate = this.set.rate;
+                    this.synth.cancel();
+                    this.synth.speak(utterThis);
+                },
+                cancel() {
+                    this.synth.cancel();
+                },
+                reset() {
+                    this.set.input = '';
+                },
+            }
+        });
+    </script>
+</body>
+</html>
