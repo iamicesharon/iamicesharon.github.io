@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh" class="js">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>二维码生成 - 桑帛云工具网</title>
+    <meta name="keywords" content="桑帛云工具网,源码查看器原创,在线,工具">
+    <meta name="description" content="这是一个非常Nice的在线工具箱">
+    <style>
+        /* General Body and Typography Enhancements */
+        body {
+            background-color: #f4f7fa;
+            font-family: 'Arial', sans-serif;
+            color: #333;
+        }
+
+        /* Card Styling */
+        .card-preview {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        /* Form Styling */
+        .form-control {
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+            padding: 10px;
+            font-size: 14px;
+            width: 100%; /* Ensures full width */
+            box-sizing: border-box; /* Includes padding and border in width */
+        }
+
+        .form-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        /* Pre-set Input Box Size */
+        textarea#input {
+            height: 150px; /* Default height for the input textarea */
+        }
+
+        /* Button Styling */
+        .btn {
+            padding: 0.375rem 0.75rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            border-radius: 0.25rem;
+            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+        .btn-dim {
+            color: #fff;
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-dim:hover, .btn-dim:focus {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+
+        .btn-outline-primary {
+            color: #007bff;
+            border-color: #007bff;
+            background-color: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            color: #fff;
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        /* Responsive Grid Enhancements */
+        @media (max-width: 768px) {
+            .col-md-4, .col-md-8 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+
+            .btn-block {
+                display: block;
+                width: 100%;
+            }
+        }
+
+        /* Image Display Enhancements */
+        #qrcode {
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+
+        /* Color Picker Enhancement */
+        input[type='color'] {
+            height: 40px;
+            border: none;
+            padding: 0;
+            background: none;
+            cursor: pointer;
+        }
+
+        /* Input and Select Box Enhancements */
+        .form-control-wrap {
+            max-width: 100%;
+            width: auto;
+        }
+
+        /* Layout Adjustments */
+        .container-xl {
+            max-width: 1140px;
+            margin: 0 auto;
+        }
+
+        .nk-ibx-action-item {
+            color: #212529;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        h1{
+            font-size: 50px;
+        }
+    </style>
+</head>                     
+<div class="container-xl" id="app">
+<div class="col-sm-12 center-block">
+    <h1>二维码生成器</h1>
+    <div class="row">
+        <div class="col-sm-12 col-md-8">
+            <div class="form-group">
+                <label class="form-label">内容</label>
+                <div class="form-control-wrap">
+                    <textarea v-model="set.input" id="input" class="form-control" rows="5"></textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6 col-md-4 mb-2">
+                    <div class="form-group">
+                        <label class="form-label">大小（像素）</label>
+                        <div class="form-control-wrap">
+                            <input type="number" v-model="set.width" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-2">
+                    <div class="form-group">
+                        <label class="form-label">边距大小（像素）</label>
+                        <div class="form-control-wrap">
+                            <input type="number" v-model="set.margin" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-2">
+                    <div class="form-group">
+                        <label class="form-label">最小块大小（像素）</label>
+                        <div class="form-control-wrap">
+                            <input type="number" v-model="set.scale" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-2">
+                    <div class="form-group">
+                        <label class="form-label">容错级别</label>
+                        <div class="form-control-wrap">
+                            <select class="form-control" v-model="set.errorCorrectionLevel">
+                                <option>低</option>
+                                <option>中等</option>
+                                <option>较高</option>
+                                <option>高</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-2">
+                    <div class="form-group">
+                        <label class="form-label">前景色（{{set.color.dark}}）</label>
+                        <div class="form-control-wrap">
+                            <input type="color" v-model="set.color.dark" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 mb-2">
+                    <div class="form-group">
+                        <label class="form-label">背景色（{{set.color.light}}）</label>
+                        <div class="form-control-wrap">
+                            <input type="color" v-model="set.color.light" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row pt-3 pb-1">
+                <div class="col-6">
+                    <button class="btn btn-dim btn-outline-primary btn-block card-link" @click="generate">
+                        <em class="icon ni ni-lock"></em>生成
+                    </button>
+                </div>
+                <div class="col-6">
+                    <button class="btn btn-dim btn-outline-primary btn-block card-link" @click="reset">
+                        <em class="icon ni ni-reload"></em>清空
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-4">
+            <div class="card-body text-center" v-show="set.output">
+                <img class="mx-auto shadow" :src="set.output" id="qrcode"/>
+                <button class="btn btn-outline-light mt-3" @click="download">
+                    <em class="icon ni ni-download"></em>下载
+                </button>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+</div>
+</div>
+<script src="//lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.6.0/jquery.min.js"></script>
+<script src="//lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/bootstrap/4.6.1/js/bootstrap.bundle.min.js"></script>
+<script src="//lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/layer/3.5.1/layer.js"></script>
+<script src="/static/js/nioapp.min.js"></script>
+<script src="/static/js/script.js"></script>
+<script src="/static/js/common.js"></script>
+<script>
+var plugin_id = 44;
+var plugin_is_star = 0;
+$("#star-btn-text").text(plugin_is_star?'取消收藏':'添加收藏');
+$(document).ready(function(){
+    $('.dark-switch').on("click", function(e) {
+        if ($("body.dark-mode").length <= 0) {
+            document.cookie='darkmode=1';
+        } else {
+            document.cookie='darkmode=0';
+        }
+    });
+})
+</script>
+
+<script src="//lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/vue/2.6.14/vue.min.js"></script>
+<script src="https://unpkg.com/qrcode@1.5.0/build/qrcode.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            set: {
+                input: window.location.href,
+                errorCorrectionLevel: 'high',//low, medium, quartile, high
+                type: 'image/png',
+                quality: 1,
+                scale: 4,
+                margin: 1,
+                width: 256,
+                color: {
+                    dark: "#000000",
+                    light: "#ffffff"
+                },
+                output: '',
+            },
+        },
+        created() {
+        },
+        watch: {
+            'set': {
+                handler() {
+                    if (this.set.input !== '') {
+                        this.generate()
+                    }
+                },
+                deep: true
+            }
+        },
+        mounted() {
+            this.generate()
+        },
+        methods: {
+            generate() {
+                if (this.set.input === '') {
+                    $message.error('请输入内容')
+                    return
+                }
+                let that = this
+                QRCode.toDataURL(this.set.input, this.set, function (err, url) {
+                    if (err) throw err
+                    that.set.output = url
+                })
+            },
+            reset() {
+                this.set.input = ''
+                this.set.output = ''
+
+            },
+            download() {
+                var MIME_TYPE = "image/png";
+
+                var imgURL = $("#qrcode").attr('src');
+
+                var dlLink = document.createElement('a');
+                dlLink.download = 'qrcode';
+                dlLink.href = imgURL;
+                dlLink.dataset.downloadurl = [MIME_TYPE, dlLink.download, dlLink.href].join(':');
+
+                document.body.appendChild(dlLink);
+                dlLink.click();
+                document.body.removeChild(dlLink);
+            }
+        },
+    })
+</script>
+
+</body>
+</html>
